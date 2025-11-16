@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+
+{% block title %}通知 - Coffee Break Meter{% endblock %}
+
+{% block content %}
+<style>
+.page-header {
+    background: linear-gradient(135deg, #8B4513 0%, #5D3A1A 100%);
+    color: white;
+    padding: 40px;
+    border-radius: 12px;
+    margin-bottom: 40px;
+    text-align: center;
+}
+
+.page-header h1 {
+    margin: 0;
+    font-size: 2.5rem;
+}
+
+.notification-actions {
+    text-align: right;
+    margin-bottom: 20px;
+}
+
+.btn-read-all {
+    background: #6c757d;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    display: inline-block;
+    transition: all 0.3s;
+}
+
+.btn-read-all:hover {
+    background: #5a6268;
+    color: white;
+}
+
+.notification-card {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 15px;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    text-decoration: none;
+    color: inherit;
+}
+
+.notification-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.notification-card.unread {
+    border-left: 4px solid #8B4513;
+    background: #fffbf5;
+}
+
+.notification-icon {
+    font-size: 2rem;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f8f9fa;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.notification-content {
+    flex: 1;
+}
+
+.notification-sender {
+    font-weight: 700;
+    color: #8B4513;
+    margin-bottom: 5px;
+}
+
+.notification-text {
+    color: #333;
+    margin-bottom: 5px;
+}
+
+.notification-time {
+    font-size: 0.85rem;
+    color: #999;
+}
+
+.notification-badge {
+    background: #8B4513;
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 80px 20px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.empty-state h3 {
+    color: #666;
+    margin-bottom: 10px;
+}
+</style>
+
+<!-- ページヘッダー -->
+<div class="page-header">
+    <h1>🔔 通知</h1>
+</div>
+
+<!-- 通知一覧 -->
+{% if notifications %}
+    {% for notification in notifications %}
+    <a href="{% url 'mark_notification_read' notification.pk %}" class="notification-card {% if not notification.is_read %}unread{% endif %}">
+        <div class="notification-icon">
+            {% if notification.notification_type == 'comment_on_column' %}
+                💬
+            {% elif notification.notification_type == 'like_on_column' %}
+                ❤️
+            {% elif notification.notification_type == 'comment_on_review' %}
+                💭
+            {% endif %}
+        </div>
+        
+        <div class="notification-content">
+            <div class="notification-sender">{{ notification.sender.username }}</div>
+            <div class="notification-text">
+                {% if notification.notification_type == 'comment_on_column' %}
+                    あなたのコラム「{{ notification.column.title }}」にコメントしました
+                {% elif notification.notification_type == 'like_on_column' %}
+                    あなたのコラム「{{ notification.column.title }}」にいいねしました
+                {% elif notification.notification_type == 'comment_on_review' %}
+                    あなたのレビューにコメントしました
+                {% endif %}
+            </div>
+            <div class="notification-time">{{ notification.created_at|date:"Y年n月j日 H:i" }}</div>
+        </div>
+        
+        {% if not notification.is_read %}
+        <span class="notification-badge">未読</span>
+        {% endif %}
+    </a>
+    {% endfor %}
+{% else %}
+    <div class="empty-state">
+        <h3>📭 通知はありません</h3>
+        <p>まだ通知がありません</p>
+    </div>
+{% endif %}
+
+{% endblock %}

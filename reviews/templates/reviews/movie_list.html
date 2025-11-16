@@ -1,0 +1,89 @@
+{% extends "reviews/base.html" %}
+
+{% block title %}映画一覧 - Gap Movies{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h1 class="mb-4">🎬 映画一覧</h1>
+    
+    <!-- 検索バー -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" action="{% url 'movie_list' %}">
+                <div class="input-group">
+                    <input type="text" class="form-control" name="q" placeholder="映画タイトルで検索..." value="{{ query }}">
+                    <button class="btn btn-primary" type="submit">
+                        <i class="fas fa-search"></i> 検索
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <p class="text-muted">全{{ page_obj.paginator.count }}件の映画</p>
+
+    <!-- 映画グリッド -->
+    <div class="row">
+        {% for movie in page_obj %}
+        <div class="col-md-3 mb-4">
+            <div class="card h-100">
+                <a href="{% url 'movie_detail' movie.id %}">
+                    {% if movie.poster_path %}
+                        <img src="https://image.tmdb.org/t/p/w500{{ movie.poster_path }}" 
+                             class="card-img-top" alt="{{ movie.title }}">
+                    {% else %}
+                        <div class="bg-secondary text-white d-flex align-items-center justify-content-center" 
+                             style="height: 450px;">
+                            画像なし
+                        </div>
+                    {% endif %}
+                </a>
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <a href="{% url 'movie_detail' movie.id %}" class="text-decoration-none">
+                            {{ movie.title }}
+                        </a>
+                    </h5>
+                    {% if movie.release_date %}
+                        <p class="text-muted mb-0">{{ movie.release_date|date:"Y年" }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <p class="text-center text-muted">映画が見つかりませんでした</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- ページネーション -->
+    {% if page_obj.has_other_pages %}
+    <nav>
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page=1{% if query %}&q={{ query }}{% endif %}">最初</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}">前へ</a>
+            </li>
+            {% endif %}
+
+            <li class="page-item active">
+                <span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+            </li>
+
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}">次へ</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if query %}&q={{ query }}{% endif %}">最後</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+
+{% block title %}{{ profile_user.username }} のフォロー中 - Gap Movies{% endblock %}
+
+{% block content %}
+<style>
+.page-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 60px 0;
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.page-title {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.user-card {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    transition: all 0.3s;
+}
+
+.user-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.user-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.8rem;
+    font-weight: 700;
+}
+
+.user-info {
+    flex: 1;
+}
+
+.user-username {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #333;
+    text-decoration: none;
+}
+
+.user-username:hover {
+    color: #667eea;
+}
+
+.user-stats {
+    color: #999;
+    font-size: 0.9rem;
+    margin-top: 5px;
+}
+
+.btn-view-profile {
+    padding: 10px 20px;
+    background: #667eea;
+    color: white;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.btn-view-profile:hover {
+    background: #764ba2;
+    transform: translateY(-2px);
+    color: white;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 80px 20px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+</style>
+
+<div class="page-header">
+    <div class="container">
+        <h1 class="page-title">➕ {{ profile_user.username }} のフォロー中</h1>
+        <p>{{ following.count }}人をフォロー中</p>
+    </div>
+</div>
+
+<div class="container">
+    {% if following %}
+        {% for follow in following %}
+        <div class="user-card">
+            <a href="{% url 'user_profile' follow.following.username %}" style="text-decoration: none;">
+                <div class="user-avatar">
+                    {{ follow.following.username|slice:":1"|upper }}
+                </div>
+            </a>
+            
+            <div class="user-info">
+                <a href="{% url 'user_profile' follow.following.username %}" class="user-username">
+                    {{ follow.following.username }}
+                </a>
+                <div class="user-stats">
+                    📝 {{ follow.following.review_set.count }}件のレビュー | 
+                    ✍️ {{ follow.following.column_set.count }}件のコラム
+                </div>
+            </div>
+            
+            <a href="{% url 'user_profile' follow.following.username %}" class="btn-view-profile">
+                プロフィールを見る
+            </a>
+        </div>
+        {% endfor %}
+    {% else %}
+    <div class="empty-state">
+        <h3>まだ誰もフォローしていません</h3>
+        <p>他のユーザーをフォローすると、ここに表示されます</p>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}

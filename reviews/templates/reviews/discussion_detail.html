@@ -1,0 +1,212 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+    .discussion-detail-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 40px 0;
+        margin-bottom: 40px;
+        color: white;
+    }
+
+    .discussion-container {
+        background: white;
+        border-radius: 15px;
+        padding: 40px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+        margin-bottom: 40px;
+    }
+
+    .discussion-title {
+        font-size: 2rem;
+        font-weight: 800;
+        margin-bottom: 20px;
+        color: #2c3e50;
+    }
+
+    .discussion-meta {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        color: #7f8c8d;
+        padding-bottom: 20px;
+        border-bottom: 2px solid #f0f0f0;
+        margin-bottom: 30px;
+    }
+
+    .discussion-content {
+        color: #2c3e50;
+        line-height: 1.8;
+        font-size: 1.1rem;
+        margin-bottom: 30px;
+    }
+
+    .discussion-actions {
+        display: flex;
+        gap: 15px;
+        padding-top: 20px;
+        border-top: 2px solid #f0f0f0;
+    }
+
+    .btn-edit, .btn-delete {
+        padding: 10px 25px;
+        border-radius: 20px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .btn-edit {
+        background: #667eea;
+        color: white;
+    }
+
+    .btn-delete {
+        background: #e74c3c;
+        color: white;
+    }
+
+    .comments-section {
+        background: white;
+        border-radius: 15px;
+        padding: 40px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+    }
+
+    .comments-title {
+        font-size: 1.5rem;
+        font-weight: 800;
+        margin-bottom: 30px;
+        color: #2c3e50;
+    }
+
+    .comment-card {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+
+    .comment-header {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 15px;
+    }
+
+    .comment-author {
+        font-weight: 700;
+        color: #2c3e50;
+    }
+
+    .comment-date {
+        color: #7f8c8d;
+        font-size: 0.9rem;
+    }
+
+    .comment-content {
+        color: #2c3e50;
+        line-height: 1.6;
+    }
+
+    .comment-form {
+        margin-top: 30px;
+        padding-top: 30px;
+        border-top: 2px solid #f0f0f0;
+    }
+
+    .btn-submit {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 12px 30px;
+        border: none;
+        border-radius: 20px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(102, 126, 234, 0.4);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- ページヘッダー -->
+<section class="discussion-detail-header">
+    <div class="container">
+        <h1>💬 みんなの声</h1>
+    </div>
+</section>
+
+<div class="container">
+    <!-- 投稿詳細 -->
+    <div class="discussion-container">
+        <h1 class="discussion-title">{{ discussion.title }}</h1>
+        
+        <div class="discussion-meta">
+            <span>👤 {{ discussion.user.username }}</span>
+            <span>📅 {{ discussion.created_at|date:"Y年m月d日 H:i" }}</span>
+            {% if discussion.movie %}
+            <span>🎬 <a href="{% url 'movie_detail' discussion.movie.pk %}">{{ discussion.movie.title }}</a></span>
+            {% endif %}
+        </div>
+
+        <div class="discussion-content">
+            {{ discussion.content|linebreaks }}
+        </div>
+
+        {% if user == discussion.user %}
+        <div class="discussion-actions">
+            <a href="{% url 'discussion_edit' discussion.pk %}" class="btn-edit">編集</a>
+            <a href="{% url 'discussion_delete' discussion.pk %}" class="btn-delete" 
+               onclick="return confirm('本当に削除しますか？')">削除</a>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- コメントセクション -->
+    <div class="comments-section">
+        <h2 class="comments-title">💬 コメント ({{ comments.count }})</h2>
+
+        {% for comment in comments %}
+        <div class="comment-card">
+            <div class="comment-header">
+                <span class="comment-author">{{ comment.user.username }}</span>
+                <span class="comment-date">{{ comment.created_at|date:"Y年m月d日 H:i" }}</span>
+            </div>
+            <div class="comment-content">
+                {{ comment.content|linebreaks }}
+            </div>
+        </div>
+        {% empty %}
+        <p style="text-align: center; color: #7f8c8d;">まだコメントがありません</p>
+        {% endfor %}
+
+        <!-- コメントフォーム -->
+        {% if user.is_authenticated %}
+        <div class="comment-form">
+            <h3 style="margin-bottom: 15px;">コメントを投稿</h3>
+            <form method="post">
+                {% csrf_token %}
+                {{ form.content }}
+                <button type="submit" class="btn-submit" style="margin-top: 15px;">コメントする</button>
+            </form>
+        </div>
+        {% else %}
+        <div style="text-align: center; margin-top: 30px; padding: 20px; background: #f8f9fa; border-radius: 10px;">
+            <p><a href="{% url 'login_view' %}">ログイン</a>してコメントを投稿しましょう</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <div style="text-align: center; margin: 40px 0;">
+        <a href="{% url 'discussion_list' %}" style="color: #667eea; text-decoration: none; font-weight: 600;">
+            ← 一覧に戻る
+        </a>
+    </div>
+</div>
+{% endblock %}

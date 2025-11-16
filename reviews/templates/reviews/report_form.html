@@ -1,0 +1,182 @@
+{% extends "base.html" %}
+
+{% block title %}コンテンツを報告 - Gap Movies{% endblock %}
+
+{% block content %}
+<style>
+.report-header {
+    background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+    color: white;
+    padding: 60px 0;
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.report-title {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.report-form-container {
+    max-width: 600px;
+    margin: 0 auto;
+    background: white;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.form-group {
+    margin-bottom: 25px;
+}
+
+.form-label {
+    font-weight: 600;
+    margin-bottom: 10px;
+    display: block;
+    color: #333;
+}
+
+.form-select {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s;
+}
+
+.form-select:focus {
+    outline: none;
+    border-color: #e74c3c;
+}
+
+.form-textarea {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-size: 1rem;
+    min-height: 150px;
+    resize: vertical;
+    font-family: 'Noto Sans JP', sans-serif;
+    transition: all 0.3s;
+}
+
+.form-textarea:focus {
+    outline: none;
+    border-color: #e74c3c;
+}
+
+.help-text {
+    color: #999;
+    font-size: 0.9rem;
+    margin-top: 5px;
+}
+
+.btn-submit {
+    width: 100%;
+    padding: 15px;
+    background: #e74c3c;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-submit:hover {
+    background: #c0392b;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(231, 76, 60, 0.4);
+}
+
+.btn-cancel {
+    width: 100%;
+    padding: 15px;
+    background: #95a5a6;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-top: 15px;
+    text-decoration: none;
+    display: block;
+    text-align: center;
+}
+
+.btn-cancel:hover {
+    background: #7f8c8d;
+    color: white;
+}
+
+.warning-box {
+    background: #fff3cd;
+    border-left: 4px solid #ffc107;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 25px;
+}
+
+.warning-box strong {
+    display: block;
+    margin-bottom: 5px;
+    color: #856404;
+}
+
+.warning-box p {
+    color: #856404;
+    margin: 0;
+    font-size: 0.95rem;
+}
+</style>
+
+<div class="report-header">
+    <div class="container">
+        <h1 class="report-title">⚠️ コンテンツを報告</h1>
+        <p>不適切なコンテンツを見つけた場合は、こちらからご報告ください</p>
+    </div>
+</div>
+
+<div class="container">
+    <div class="report-form-container">
+        <div class="warning-box">
+            <strong>ご注意</strong>
+            <p>虚偽の報告や悪意のある報告は、アカウントの停止につながる可能性があります。</p>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            
+            <input type="hidden" name="content_type" value="{{ content_type }}">
+            <input type="hidden" name="content_id" value="{{ content_id }}">
+            
+            <div class="form-group">
+                <label class="form-label">報告理由 <span style="color: #e74c3c;">*</span></label>
+                <select name="report_type" class="form-select" required>
+                    <option value="">選択してください</option>
+                    {% for value, label in report_types %}
+                    <option value="{{ value }}">{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">詳細 <span style="color: #e74c3c;">*</span></label>
+                <textarea name="description" class="form-textarea" required placeholder="報告する理由を詳しく説明してください（500文字以内）"></textarea>
+                <div class="help-text">できるだけ具体的に説明してください</div>
+            </div>
+            
+            <button type="submit" class="btn-submit">報告を送信する</button>
+            <a href="javascript:history.back()" class="btn-cancel">キャンセル</a>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

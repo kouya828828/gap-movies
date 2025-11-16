@@ -1,0 +1,209 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+    .discussion-header {
+        background: #f8f9fa;
+        padding: 60px 0;
+        margin-bottom: 40px;
+        text-align: center;
+        color: #2c3e50;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .discussion-header h1 {
+        font-size: 3rem;
+        font-weight: 800;
+        margin-bottom: 15px;
+    }
+
+    .discussion-header .subtitle {
+        font-size: 1.2rem;
+        font-weight: 300;
+        margin-bottom: 25px;
+        color: #5a6c7d;
+    }
+
+    .btn-create {
+        background: #4a5568;
+        color: white;
+        padding: 15px 35px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 1.1rem;
+        display: inline-block;
+        transition: all 0.3s ease;
+    }
+
+    .btn-create:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(74, 85, 104, 0.3);
+        color: white;
+    }
+
+    .discussion-card {
+        background: white;
+        border-radius: 15px;
+        padding: 30px;
+        margin-bottom: 25px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+        transition: all 0.3s ease;
+        text-decoration: none;
+        color: inherit;
+        display: block;
+        border-left: 4px solid transparent;
+    }
+
+    .discussion-card:hover {
+        box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        transform: translateY(-5px);
+        border-left-color: #4a5568;
+    }
+
+    .discussion-title {
+        font-size: 1.6rem;
+        font-weight: 800;
+        margin-bottom: 15px;
+        color: #2c3e50;
+    }
+
+    .discussion-meta {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        color: #7f8c8d;
+        font-size: 0.95rem;
+    }
+
+    .discussion-excerpt {
+        color: #5a6c7d;
+        line-height: 1.8;
+        margin-top: 15px;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 80px 20px;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .empty-state h3 {
+        font-size: 1.5rem;
+        color: #5a6c7d;
+        margin-bottom: 15px;
+    }
+
+    .empty-state p {
+        color: #7f8c8d;
+        margin-bottom: 25px;
+    }
+
+    /* ページネーション */
+    .pagination {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin: 40px 0;
+        flex-wrap: wrap;
+    }
+
+    .pagination a,
+    .pagination span {
+        padding: 10px 18px;
+        background: white;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        text-decoration: none;
+        color: #5a6c7d;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .pagination a:hover {
+        border-color: #4a5568;
+        color: #4a5568;
+        transform: translateY(-2px);
+    }
+
+    .pagination .current {
+        background: #4a5568;
+        border-color: #4a5568;
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- ページヘッダー -->
+<section class="discussion-header">
+    <div class="container">
+        <h1>みんなの声</h1>
+        <p class="subtitle">映画について語り合う場所</p>
+        {% if user.is_authenticated %}
+        <a href="{% url 'discussion_create' %}" class="btn-create">✍️ 投稿する</a>
+        {% endif %}
+    </div>
+</section>
+
+<div class="container">
+    {% if page_obj %}
+    <div class="discussions-list">
+        {% for discussion in page_obj %}
+        <a href="{% url 'discussion_detail' discussion.pk %}" class="discussion-card">
+            <h3 class="discussion-title">{{ discussion.title }}</h3>
+            <div class="discussion-meta">
+                <span>{{ discussion.user.username }}</span>
+                <span>{{ discussion.created_at|date:"Y年m月d日" }}</span>
+                {% if discussion.movie %}
+                <span>{{ discussion.movie.title }}</span>
+                {% endif %}
+                <span>{{ discussion.comments.count }} コメント</span>
+            </div>
+            <div class="discussion-excerpt">
+                {{ discussion.content|striptags|truncatewords:40 }}
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+
+    <!-- ページネーション -->
+    {% if page_obj.has_other_pages %}
+    <div class="pagination">
+        {% if page_obj.has_previous %}
+        <a href="?page=1">« 最初</a>
+        <a href="?page={{ page_obj.previous_page_number }}">‹ 前へ</a>
+        {% endif %}
+
+        {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+        <span class="current">{{ num }}</span>
+        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+        <a href="?page={{ num }}">{{ num }}</a>
+        {% endif %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}">次へ ›</a>
+        <a href="?page={{ page_obj.paginator.num_pages }}">最後 »</a>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {% else %}
+    <!-- 空の状態 -->
+    <div class="empty-state">
+        <h3>まだ投稿がありません</h3>
+        <p>映画について語る最初の投稿者になりましょう！</p>
+        {% if user.is_authenticated %}
+        <a href="{% url 'discussion_create' %}" class="btn-create">投稿する</a>
+        {% else %}
+        <a href="{% url 'login_view' %}" class="btn-create">ログインして投稿</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

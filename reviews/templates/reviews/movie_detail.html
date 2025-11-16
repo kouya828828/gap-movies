@@ -1,0 +1,356 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ movie.title }} - Gap Movies{% endblock %}
+
+{% block extra_js %}
+<script>
+function updateExpectationValue(val) {
+    document.getElementById('expectation-value').textContent = val;
+}
+
+function updateSatisfactionValue(val) {
+    document.getElementById('satisfaction-value').textContent = val;
+}
+
+function calculateGap() {
+    const expectation = parseInt(document.getElementById('expectation').value);
+    const satisfactionInput = document.getElementById('satisfaction');
+    
+    if (!satisfactionInput) return; // 公開前は満足度がないのでスキップ
+    
+    const satisfaction = parseInt(satisfactionInput.value);
+    const gap = satisfaction - expectation;
+
+    document.getElementById('gap-value').textContent = gap > 0 ? `+${gap}` : gap;
+
+    const gapBar = document.getElementById('gap-bar');
+    const percentage = ((gap + 50) / 100) * 100; // -50 to +50 を 0-100% に変換
+    gapBar.style.width = percentage + '%';
+
+    if (gap >= 30) {
+        gapBar.style.backgroundColor = '#10b981';
+    } else if (gap >= 10) {
+        gapBar.style.backgroundColor = '#3b82f6';
+    } else if (gap >= -9) {
+        gapBar.style.backgroundColor = '#f59e0b';
+    } else if (gap >= -29) {
+        gapBar.style.backgroundColor = '#f97316';
+    } else {
+        gapBar.style.backgroundColor = '#ef4444';
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const expectationSlider = document.getElementById('expectation');
+    const satisfactionSlider = document.getElementById('satisfaction');
+
+    if (expectationSlider) {
+        expectationSlider.addEventListener('input', function() {
+            updateExpectationValue(this.value);
+            calculateGap();
+        });
+    }
+
+    if (satisfactionSlider) {
+        satisfactionSlider.addEventListener('input', function() {
+            updateSatisfactionValue(this.value);
+            calculateGap();
+        });
+    }
+
+    if (satisfactionSlider) {
+        calculateGap();
+    }
+});
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <!-- 映画ヘッダー -->
+    <div class="card shadow-sm mb-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none;">
+        <div class="card-body p-4">
+            <div class="row align-items-center">
+                <div class="col-md-3 text-center">
+                    {% if movie.poster_path %}
+                        <img src="https://image.tmdb.org/t/p/w500{{ movie.poster_path }}"
+                             alt="{{ movie.title }}"
+                             class="img-fluid rounded shadow-lg"
+                             style="max-height: 400px;">
+                    {% else %}
+                        <div class="bg-secondary rounded d-flex align-items-center justify-content-center"
+                             style="height: 400px;">
+                            <span class="text-white">画像なし</span>
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="col-md-9">
+                    <h1 class="display-4 fw-bold mb-3">{{ movie.title }}</h1>
+                    {% if movie.original_title != movie.title %}
+                        <p class="lead mb-3">{{ movie.original_title }}</p>
+                    {% endif %}
+
+                    <div class="mb-3">
+                        {% if movie.release_date %}
+                            <span class="badge bg-light text-dark me-2">{{ movie.release_date|date:"Y年" }}</span>
+                        {% endif %}
+                        {% if movie.runtime %}
+                            <span class="badge bg-light text-dark me-2">{{ movie.runtime }}分</span>
+                        {% endif %}
+                    </div>
+
+                    <p class="mb-4" style="font-size: 1.1rem; line-height: 1.8;">{{ movie.overview }}</p>
+
+                    <!-- スコア表示エリア -->
+                    {% if movie.review_count > 0 %}
+                    <div class="mb-4 p-3 bg-white bg-opacity-25 rounded">
+                        <div class="row text-center">
+                            <div class="col-md-3">
+                                <div class="fw-bold">総合スコア</div>
+                                <div class="fs-2 fw-bold">{{ movie.average_score|default:"--" }}</div>
+                                <small>({{ movie.review_count }}件)</small>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="fw-bold">映画通</div>
+                                <div class="fs-2 fw-bold">{{ movie.movie_buff_score|default:"--" }}</div>
+                                <small>({{ movie.movie_buff_review_count }}件)</small>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="fw-bold">ライトユーザー</div>
+                                <div class="fs-2 fw-bold">{{ movie.casual_user_score|default:"--" }}</div>
+                                <small>({{ movie.casual_review_count }}件)</small>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="fw-bold">ゴールデンスコア</div>
+                                <div class="fs-2 fw-bold">{{ movie.golden_score|default:"--" }}</div>
+                            </div>
+                        </div>
+                        {% if movie.expectation_reaction %}
+                        <div class="mt-3 text-center">
+                            <p class="mb-0 fw-bold">{{ movie.expectation_reaction }}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+
+                    <div class="d-flex gap-2">
+                        {% if user.is_authenticated %}
+                            <form method="post" action="{% url 'toggle_favorite' movie.id %}" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-light">
+                                    {% if is_favorite %}お気に入り済み{% else %}お気に入りに追加{% endif %}
+                                </button>
+                            </form>
+
+                            <form method="post" action="{% url 'toggle_watch_status' movie.id %}" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-light">
+                                    {% if watch_status %}視聴済み{% else %}見たい{% endif %}
+                                </button>
+                            </form>
+                        {% else %}
+                            <a href="{% url 'login_view' %}" class="btn btn-light">ログインしてお気に入り登録</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- レビューフォーム -->
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <h3 class="mb-0">レビューを書く</h3>
+                </div>
+                <div class="card-body">
+                    {% if user.is_authenticated %}
+                        <form method="post">
+                            {% csrf_token %}
+
+                            <!-- 期待度スライダー -->
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">期待度</label>
+                                <div class="d-flex align-items-center gap-3">
+                                    <span class="text-muted">低い</span>
+                                    <input type="range" class="form-range flex-grow-1"
+                                           id="expectation" name="expectation"
+                                           min="0" max="100" value="50" step="1">
+                                    <span class="text-muted">高い</span>
+                                    <span class="badge bg-primary" id="expectation-value" style="min-width: 45px;">50</span>
+                                </div>
+                            </div>
+
+                            <!-- 満足度スライダー（公開後のみ表示） -->
+                            {% if movie.release_date <= today %}
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">満足度</label>
+                                <div class="d-flex align-items-center gap-3">
+                                    <span class="text-muted">低い</span>
+                                    <input type="range" class="form-range flex-grow-1"
+                                           id="satisfaction" name="satisfaction"
+                                           min="0" max="100" value="50" step="1">
+                                    <span class="text-muted">高い</span>
+                                    <span class="badge bg-success" id="satisfaction-value" style="min-width: 45px;">50</span>
+                                </div>
+                            </div>
+
+                            <!-- ギャップメーター -->
+                            <div class="mb-4 p-3 bg-light rounded">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="fw-bold">ギャップスコア</span>
+                                    <span class="badge bg-warning text-dark fs-5" id="gap-value">0</span>
+                                </div>
+                                <div class="progress" style="height: 30px;">
+                                    <div id="gap-bar" class="progress-bar" role="progressbar"
+                                         style="width: 50%;" aria-valuenow="0" aria-valuemin="-50" aria-valuemax="50"></div>
+                                </div>
+                                <div class="d-flex justify-content-between mt-1">
+                                    <small class="text-danger">期待外れ -50</small>
+                                    <small class="text-warning">期待通り 0</small>
+                                    <small class="text-success">期待以上 +50</small>
+                                </div>
+                            </div>
+                            {% else %}
+                            <div class="alert alert-info">
+                                この映画は公開前です。公開後に満足度を追加できます。
+                            </div>
+                            {% endif %}
+
+                            <!-- レビュー本文 -->
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">レビュー</label>
+                                <textarea class="form-control" name="review_text" rows="5"
+                                          placeholder="この映画の感想を書いてください..."></textarea>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary w-100">
+                                レビューを投稿
+                            </button>
+                        </form>
+                    {% else %}
+                        <div class="alert alert-info">
+                            <a href="{% url 'login_view' %}">ログイン</a>してレビューを投稿しましょう
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- レビュー一覧 -->
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <h3 class="mb-0">みんなのレビュー ({{ reviews.count }}件)</h3>
+                </div>
+                <div class="card-body" style="max-height: 600px; overflow-y: auto;">
+                    {% if reviews %}
+                        {% for review in reviews %}
+                        <div class="border-bottom pb-3 mb-3">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div>
+                                    <a href="{% url 'user_profile' review.user.username %}" class="text-decoration-none fw-bold">
+                                        {{ review.user.username }}
+                                    </a>
+                                    {% if review.user.userprofile.is_movie_buff %}
+                                        <span class="badge bg-dark">映画通</span>
+                                    {% endif %}
+                                    <small class="text-muted d-block">{{ review.created_at|date:"Y/m/d H:i" }}</small>
+                                </div>
+                                <div class="text-end">
+                                    <span class="badge bg-primary">期待度 {{ review.expectation }}</span>
+                                    {% if review.satisfaction %}
+                                        <span class="badge bg-success">満足度 {{ review.satisfaction }}</span>
+                                        {% with gap=review.gap_score %}
+                                        <span class="badge {% if gap >= 30 %}bg-success{% elif gap >= 10 %}bg-info{% elif gap >= -9 %}bg-warning text-dark{% elif gap >= -29 %}bg-danger{% else %}bg-dark{% endif %}">
+                                            Gap {% if gap > 0 %}+{% endif %}{{ gap }}
+                                        </span>
+                                        {% endwith %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <p class="mb-2">{{ review.review_text }}</p>
+
+                            {% if user.is_authenticated %}
+                            <div class="d-flex gap-2">
+                                <!-- いいねボタン -->
+                                <form method="post" action="{% url 'toggle_review_like' review.id %}" class="d-inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                                        {% if user in review.likes.all %}❤{% else %}🤍{% endif %} {{ review.likes.count }}
+                                    </button>
+                                </form>
+
+                                <!-- 報告ボタン -->
+                                <a href="{% url 'report_content' %}?content_type=review&object_id={{ review.id }}"
+                                   class="btn btn-sm btn-outline-secondary">報告</a>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted text-center py-5">まだレビューがありません。最初のレビューを書きませんか？</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 予告編 -->
+        {% if movie.trailer_key %}
+        <div class="card shadow-sm mb-4">
+            <div class="card-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                <h3 class="mb-0">🎬 予告編</h3>
+            </div>
+            <div class="card-body p-0">
+                <div class="ratio ratio-16x9">
+                    <iframe 
+                        src="https://www.youtube.com/embed/{{ movie.trailer_key }}?enablejsapi=1" 
+                        title="YouTube video player" 
+                        frameborder="0" 
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                        allowfullscreen>
+                    </iframe>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+    <!-- スタッフ情報 -->
+    {% if movie.director or movie.cast.exists %}
+    <div class="card shadow-sm mb-4">
+        <div class="card-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+            <h3 class="mb-0">スタッフ・キャスト</h3>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                {% if movie.director %}
+                <div class="col-md-6 mb-3">
+                    <h5 class="fw-bold">監督</h5>
+                    <a href="{% url 'person_movie_list' movie.director.id %}" class="text-decoration-none">
+                        {{ movie.director.name }}
+                    </a>
+                </div>
+                {% endif %}
+
+                {% if movie.cast.exists %}
+                <div class="col-md-6 mb-3">
+                    <h5 class="fw-bold">キャスト</h5>
+                    <ul class="list-unstyled">
+                        {% for person in movie.cast.all|slice:":5" %}
+                        <li>
+                            <a href="{% url 'person_movie_list' person.id %}" class="text-decoration-none">
+                                {{ person.name }}
+                            </a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

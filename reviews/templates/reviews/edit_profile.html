@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}プロフィール編集 - Gap Movies{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <h2 class="mb-4">プロフィールを編集</h2>
+
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+
+                        <h5 class="mb-3">基本情報</h5>
+                        
+                        <div class="mb-3">
+                            <label for="id_username" class="form-label">ユーザー名</label>
+                            {{ user_form.username }}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="id_email" class="form-label">メールアドレス</label>
+                            {{ user_form.email }}
+                        </div>
+
+                        <hr class="my-4">
+
+                        <h5 class="mb-3">プロフィール情報</h5>
+
+                        <div class="mb-3">
+                            <label for="id_avatar" class="form-label">アバター画像</label>
+                            {{ profile_form.avatar }}
+                            <small class="form-text text-muted">新しい画像をアップロードすると、現在の画像が置き換わります</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="id_bio" class="form-label">自己紹介</label>
+                            {{ profile_form.bio }}
+                        </div>
+
+                        <div class="mb-4">
+                            <div class="form-check">
+                                {{ profile_form.is_movie_buff }}
+                                <label class="form-check-label" for="id_is_movie_buff">
+                                    映画通として登録
+                                </label>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <h5 class="mb-3">通知設定</h5>
+
+                        <div class="mb-3">
+                            <div class="form-check">
+                                {{ profile_form.notify_on_comment }}
+                                <label class="form-check-label" for="id_notify_on_comment">
+                                    コメント通知を受け取る
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <div class="form-check">
+                                {{ profile_form.notify_on_like }}
+                                <label class="form-check-label" for="id_notify_on_like">
+                                    いいね通知を受け取る
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-dark btn-lg">保存</button>
+                            <a href="{% url 'user_profile' user.username %}" class="btn btn-outline-secondary">キャンセル</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

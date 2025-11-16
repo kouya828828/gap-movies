@@ -1,0 +1,428 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<!-- Swiper CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+<style>
+    .hero-section {
+        background: #f8f9fa;
+        color: #2c3e50;
+        padding: 80px 0;
+        margin-bottom: 50px;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .video-swiper {
+        width: 100%;
+        height: 500px;
+        margin-bottom: 50px;
+    }
+
+    .video-slide {
+        position: relative;
+        background: #000;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    .video-slide iframe {
+        width: 100%;
+        height: 100%;
+    }
+
+    .video-info {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+        padding: 30px 20px 20px;
+        color: white;
+    }
+
+    .column-swiper, .news-swiper {
+        padding: 20px 0;
+    }
+
+    .column-card, .news-card {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        transition: transform 0.3s, box-shadow 0.3s;
+        height: 100%;
+    }
+
+    .column-card:hover, .news-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+    }
+
+    .column-image {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+    }
+
+    .swiper-button-next, .swiper-button-prev {
+        color: #4a5568;
+    }
+
+    .swiper-pagination-bullet-active {
+        background: #4a5568;
+    }
+
+    .section-header {
+        background: #ffffff;
+        color: #2c3e50;
+        padding: 20px 0;
+        border-bottom: 2px solid #e9ecef;
+        margin-bottom: 30px;
+    }
+
+    .section-header h2 {
+        font-weight: 700;
+        font-size: 1.5rem;
+        margin: 0;
+    }
+
+    /* 横スクロール対応 */
+    .movie-scroll-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: thin;
+        scrollbar-color: #cbd5e0 #f7fafc;
+    }
+
+    .movie-scroll-container::-webkit-scrollbar {
+        height: 8px;
+    }
+
+    .movie-scroll-container::-webkit-scrollbar-track {
+        background: #f7fafc;
+        border-radius: 10px;
+    }
+
+    .movie-scroll-container::-webkit-scrollbar-thumb {
+        background: #cbd5e0;
+        border-radius: 10px;
+    }
+
+    .movie-scroll {
+        display: flex;
+        gap: 15px;
+        padding-bottom: 10px;
+    }
+
+    .movie-card-small {
+        flex: 0 0 140px;
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        transition: transform 0.3s;
+    }
+
+    .movie-card-small:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+    }
+
+    .movie-poster-small {
+        width: 140px;
+        height: 210px;
+        object-fit: cover;
+        display: block;
+    }
+
+    /* タブレット以上 */
+    @media (min-width: 768px) {
+        .movie-card-small {
+            flex: 0 0 160px;
+        }
+        .movie-poster-small {
+            width: 160px;
+            height: 240px;
+        }
+    }
+
+    /* PC */
+    @media (min-width: 1024px) {
+        .movie-card-small {
+            flex: 0 0 180px;
+        }
+        .movie-poster-small {
+            width: 180px;
+            height: 270px;
+        }
+    }
+
+    .movie-card {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        transition: transform 0.3s;
+    }
+
+    .movie-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+    }
+
+    .movie-poster {
+        width: 100%;
+        height: 300px;
+        object-fit: cover;
+    }
+
+    @media (max-width: 768px) {
+        .hero-section {
+            padding: 40px 0;
+        }
+
+        .hero-section h1 {
+            font-size: 2rem;
+        }
+
+        .video-swiper {
+            height: 300px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- ヒーローセクション -->
+<div class="hero-section text-center">
+    <div class="container">
+        <h1 class="display-3 fw-bold mb-3">Gap Movies</h1>
+        <p class="lead mb-4">期待と現実のギャップを楽しむ、新しい映画レビューサイト</p>
+        <div class="d-flex justify-content-center gap-3">
+            <a href="{% url 'movie_list' %}" class="btn btn-dark btn-lg">映画を探す</a>
+            <a href="{% url 'now_playing' %}" class="btn btn-outline-dark btn-lg">上映中の映画</a>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <!-- 予告編スライダー -->
+    <div class="section-header">
+        <h2>注目の予告編</h2>
+    </div>
+
+    <div class="swiper video-swiper">
+        <div class="swiper-wrapper">
+            {% if featured_movies %}
+                {% for movie in featured_movies|slice:":5" %}
+                    {% if movie.trailer_url %}
+                    <div class="swiper-slide">
+                        <div class="video-slide">
+                            <iframe src="{{ movie.trailer_url }}"
+                                    frameborder="0"
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                    allowfullscreen>
+                            </iframe>
+                            <div class="video-info">
+                                <h3>{{ movie.title }}</h3>
+                                <p class="mb-2">{{ movie.overview|truncatewords:20 }}</p>
+                                <a href="{% url 'movie_detail' movie.id %}" class="btn btn-primary btn-sm">詳細を見る</a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                {% endfor %}
+            {% else %}
+                <!-- デモ用プレースホルダー -->
+                <div class="swiper-slide">
+                    <div class="video-slide" style="height: 500px; display: flex; align-items: center; justify-content: center; background: #1a1a1a;">
+                        <div class="text-center text-white p-5">
+                            <h3 class="mb-3">映画予告編</h3>
+                            <p class="mb-0">映画データに予告編URLを追加すると、ここに表示されます</p>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+        <div class="swiper-button-next"></div>
+        <div class="swiper-button-prev"></div>
+        <div class="swiper-pagination"></div>
+    </div>
+
+    <!-- コラムスライダー -->
+    {% if recent_columns %}
+    <div class="section-header">
+        <h2>最新のコラム</h2>
+    </div>
+
+    <div class="swiper column-swiper mb-5">
+        <div class="swiper-wrapper">
+            {% for column in recent_columns %}
+            <div class="swiper-slide">
+                <div class="column-card">
+                    {% if column.thumbnail %}
+                        <img src="{{ column.thumbnail.url }}" alt="{{ column.title }}" class="column-image">
+                    {% else %}
+                        <div class="column-image bg-secondary d-flex align-items-center justify-content-center">
+                            <span class="text-white fs-1">📝</span>
+                        </div>
+                    {% endif %}
+                    <div class="p-3">
+                        <h5 class="mb-2">{{ column.title }}</h5>
+                        <p class="text-muted small mb-2">
+                            <a href="{% url 'user_profile' column.author.username %}" class="text-decoration-none">
+                                {{ column.author.username }}
+                            </a> · {{ column.created_at|date:"Y/m/d" }}
+                        </p>
+                        <p class="mb-3">{{ column.content|striptags|truncatewords:15 }}</p>
+                        <a href="{% url 'column_detail' column.id %}" class="btn btn-outline-primary btn-sm">続きを読む</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="swiper-button-next"></div>
+        <div class="swiper-button-prev"></div>
+        <div class="swiper-pagination"></div>
+    </div>
+    {% endif %}
+
+    <!-- 人気公開ランキング -->
+    <div class="section-header">
+        <h2>人気公開ランキング</h2>
+    </div>
+
+    {% if popular_movies %}
+    <div class="movie-scroll-container mb-5">
+        <div class="movie-scroll">
+            {% for movie in popular_movies|slice:":12" %}
+            <div class="movie-card-small">
+                <a href="{% url 'movie_detail' movie.id %}" class="text-decoration-none">
+                    {% if movie.poster_path %}
+                        <img src="https://image.tmdb.org/t/p/w300{{ movie.poster_path }}"
+                             alt="{{ movie.title }}"
+                             class="movie-poster-small">
+                    {% else %}
+                        <div class="movie-poster-small bg-secondary d-flex align-items-center justify-content-center">
+                            <span class="text-white">画像なし</span>
+                        </div>
+                    {% endif %}
+                    <div class="p-2">
+                        <h6 class="mb-1 text-dark small">{{ movie.title|truncatechars:15 }}</h6>
+                        <small class="text-muted">★{{ movie.vote_average|floatformat:1|default:"0.0" }}</small>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% else %}
+    <div class="alert alert-info text-center mb-5">
+        <h5>映画データを読み込み中...</h5>
+        <p class="mb-0">まもなく人気公開が表示されます</p>
+    </div>
+    {% endif %}
+
+    <!-- 最新レビュー -->
+    <div class="section-header">
+        <h2>みんなの声</h2>
+    </div>
+
+    <div class="row mb-5">
+        {% if recent_reviews %}
+            {% for review in recent_reviews|slice:":3" %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between mb-3">
+                            <a href="{% url 'user_profile' review.user.username %}" class="text-decoration-none fw-bold">
+                                {{ review.user.username }}
+                            </a>
+                            {% if review.expectation and review.satisfaction %}
+                                {% widthratio review.satisfaction 1 1 as sat %}
+                                {% widthratio review.expectation 1 1 as exp %}
+                                {% widthratio sat 1 1 as sat_int %}
+                                {% widthratio exp 1 1 as exp_int %}
+                                <span class="badge {% if sat_int > exp_int %}bg-success{% elif sat_int < exp_int %}bg-danger{% else %}bg-warning text-dark{% endif %}">
+                                    Gap {% if sat_int > exp_int %}+{% endif %}{{ sat_int|add:"-"|add:exp_int }}
+                                </span>
+                            {% endif %}
+                        </div>
+                        <a href="{% url 'movie_detail' review.movie.id %}" class="text-decoration-none">
+                            <h6 class="text-dark mb-2">{{ review.movie.title }}</h6>
+                        </a>
+                        <p class="text-muted small mb-2">{{ review.created_at|date:"Y/m/d" }}</p>
+                        <p class="mb-0">{{ review.review_text|truncatewords:20 }}</p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="col-12">
+                <div class="alert alert-info text-center">
+                    <h3>まだレビューがありません</h3>
+                    <p class="mb-3">最初のレビューを書きませんか？</p>
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'movie_list' %}" class="btn btn-primary">映画を探す</a>
+                    {% else %}
+                        <a href="{% url 'login_view' %}" class="btn btn-primary">ログインして始める</a>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Swiper JS -->
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+<script>
+    // 予告編スライダー
+    const videoSwiper = new Swiper('.video-swiper', {
+        slidesPerView: 1,
+        spaceBetween: 30,
+        loop: true,
+        autoplay: {
+            delay: 5000,
+            disableOnInteraction: false,
+        },
+        pagination: {
+            el: '.swiper-pagination',
+            clickable: true,
+        },
+        navigation: {
+            nextEl: '.swiper-button-next',
+            prevEl: '.swiper-button-prev',
+        },
+    });
+
+    // コラムスライダー
+    const columnSwiper = new Swiper('.column-swiper', {
+        slidesPerView: 1,
+        spaceBetween: 20,
+        loop: true,
+        autoplay: {
+            delay: 4000,
+            disableOnInteraction: false,
+        },
+        pagination: {
+            el: '.swiper-pagination',
+            clickable: true,
+        },
+        navigation: {
+            nextEl: '.swiper-button-next',
+            prevEl: '.swiper-button-prev',
+        },
+        breakpoints: {
+            640: {
+                slidesPerView: 2,
+            },
+            1024: {
+                slidesPerView: 3,
+            },
+        },
+    });
+</script>
+{% endblock %}

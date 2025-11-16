@@ -1,0 +1,519 @@
+{% extends 'reviews/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+    .column-header {
+        background: #f8f9fa;
+        padding: 60px 0;
+        margin-bottom: 40px;
+        text-align: center;
+        color: #2c3e50;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .column-header h1 {
+        font-size: 3rem;
+        font-weight: 800;
+        margin-bottom: 15px;
+    }
+
+    .column-header .subtitle {
+        font-size: 1.2rem;
+        font-weight: 300;
+        margin-bottom: 25px;
+        color: #5a6c7d;
+    }
+
+    .btn-create {
+        background: #4a5568;
+        color: white;
+        padding: 15px 35px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 1.1rem;
+        display: inline-block;
+        transition: all 0.3s ease;
+    }
+
+    .btn-create:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(74, 85, 104, 0.3);
+        color: white;
+    }
+
+    .filter-bar {
+        background: white;
+        padding: 20px 25px;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        margin-bottom: 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .column-count {
+        font-size: 1.1rem;
+        color: #2c3e50;
+        font-weight: 600;
+    }
+
+    .column-count strong {
+        color: #4a5568;
+        font-size: 1.3rem;
+    }
+
+    .sort-options {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .sort-btn {
+        padding: 10px 20px;
+        background: #f8f9fa;
+        border: 2px solid transparent;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: 600;
+        color: #5a6c7d;
+        text-decoration: none;
+    }
+
+    .sort-btn:hover {
+        border-color: #4a5568;
+        color: #4a5568;
+    }
+
+    .sort-btn.active {
+        background: #4a5568;
+        border-color: #4a5568;
+        color: white;
+    }
+
+    /* コラムカード */
+    .columns-list {
+        display: flex;
+        flex-direction: column;
+        gap: 25px;
+        margin-bottom: 40px;
+    }
+
+    .column-card {
+        background: white;
+        border-radius: 15px;
+        padding: 30px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+        transition: all 0.3s ease;
+        text-decoration: none;
+        color: inherit;
+        display: block;
+        border-left: 4px solid transparent;
+    }
+
+    .column-card:hover {
+        box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        transform: translateY(-5px);
+        border-left-color: #4a5568;
+    }
+
+    .column-card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .author-info {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .author-avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: #4a5568;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 700;
+        font-size: 1.2rem;
+    }
+
+    .author-details h4 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 3px;
+    }
+
+    .post-date {
+        font-size: 0.9rem;
+        color: #7f8c8d;
+    }
+
+    .column-badge {
+        padding: 6px 15px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        background: #4a5568;
+        color: white;
+    }
+
+    .column-title {
+        font-size: 1.6rem;
+        font-weight: 800;
+        margin-bottom: 15px;
+        color: #2c3e50;
+        line-height: 1.4;
+    }
+
+    .column-excerpt {
+        color: #5a6c7d;
+        line-height: 1.8;
+        margin-bottom: 20px;
+        font-size: 1.05rem;
+    }
+
+    .column-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 20px;
+        border-top: 1px solid #f0f0f0;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .column-stats {
+        display: flex;
+        gap: 20px;
+        font-size: 0.95rem;
+        color: #7f8c8d;
+    }
+
+    .stat-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .btn-read-more {
+        padding: 8px 20px;
+        background: #4a5568;
+        color: white;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .btn-read-more:hover {
+        transform: translateX(5px);
+        box-shadow: 0 4px 10px rgba(74, 85, 104, 0.4);
+        color: white;
+    }
+
+    /* フィーチャードコラム */
+    .featured-section {
+        margin-bottom: 40px;
+    }
+
+    .featured-column {
+        background: #4a5568;
+        border-radius: 15px;
+        padding: 40px;
+        color: white;
+        margin-bottom: 30px;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    }
+
+    .featured-badge {
+        display: inline-block;
+        background: rgba(255, 255, 255, 0.3);
+        padding: 8px 20px;
+        border-radius: 25px;
+        font-size: 0.9rem;
+        font-weight: 700;
+        margin-bottom: 20px;
+    }
+
+    .featured-title {
+        font-size: 2rem;
+        font-weight: 800;
+        margin-bottom: 15px;
+    }
+
+    .featured-author {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+
+    .featured-avatar {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: white;
+        color: #4a5568;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 1.5rem;
+    }
+
+    .featured-excerpt {
+        font-size: 1.1rem;
+        line-height: 1.8;
+        margin-bottom: 25px;
+        opacity: 0.95;
+    }
+
+    .btn-featured {
+        background: white;
+        color: #4a5568;
+        padding: 12px 30px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 700;
+        display: inline-block;
+        transition: all 0.3s ease;
+    }
+
+    .btn-featured:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(255,255,255,0.3);
+    }
+
+    /* ページネーション */
+    .pagination {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin: 40px 0;
+        flex-wrap: wrap;
+    }
+
+    .pagination a,
+    .pagination span {
+        padding: 10px 18px;
+        background: white;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        text-decoration: none;
+        color: #5a6c7d;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .pagination a:hover {
+        border-color: #4a5568;
+        color: #4a5568;
+        transform: translateY(-2px);
+    }
+
+    .pagination .current {
+        background: #4a5568;
+        border-color: #4a5568;
+        color: white;
+    }
+
+    /* 空の状態 */
+    .empty-state {
+        text-align: center;
+        padding: 80px 20px;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .empty-state h3 {
+        font-size: 1.5rem;
+        color: #5a6c7d;
+        margin-bottom: 15px;
+    }
+
+    .empty-state p {
+        color: #7f8c8d;
+        margin-bottom: 25px;
+    }
+
+    @media (max-width: 768px) {
+        .column-header h1 {
+            font-size: 2rem;
+        }
+
+        .column-title {
+            font-size: 1.3rem;
+        }
+
+        .featured-title {
+            font-size: 1.5rem;
+        }
+
+        .filter-bar {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .column-footer {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- ページヘッダー -->
+<section class="column-header">
+    <div class="container">
+        <h1>コラム</h1>
+        <p class="subtitle">映画について深く語る場所</p>
+        {% if user.is_staff %}
+        <a href="{% url 'column_create' %}" class="btn-create">✍️ 記事を投稿</a>
+        {% endif %}
+    </div>
+</section>
+
+<div class="container">
+    <!-- フィルターバー -->
+    <div class="filter-bar">
+        <div class="column-count">
+            投稿数: <strong>{{ page_obj.paginator.count }}</strong>件
+        </div>
+        <div class="sort-options">
+            <a href="?sort=latest" class="sort-btn {% if not request.GET.sort or request.GET.sort == 'latest' %}active{% endif %}">
+                新着順
+            </a>
+            <a href="?sort=popular" class="sort-btn {% if request.GET.sort == 'popular' %}active{% endif %}">
+                人気順
+            </a>
+            <a href="?sort=commented" class="sort-btn {% if request.GET.sort == 'commented' %}active{% endif %}">
+                コメント順
+            </a>
+        </div>
+    </div>
+
+    <!-- フィーチャードコラム -->
+    {% if featured_column and not request.GET.sort %}
+    <section class="featured-section">
+        <div class="featured-column">
+            <span class="featured-badge">注目の投稿</span>
+            <h2 class="featured-title">{{ featured_column.title }}</h2>
+            <div class="featured-author">
+                <div class="featured-avatar">
+                    {{ featured_column.user.username|slice:":1"|upper }}
+                </div>
+                <div>
+                    <div style="font-weight: 700; font-size: 1.1rem;">{{ featured_column.user.username }}</div>
+                    <div style="font-size: 0.9rem; opacity: 0.9;">{{ featured_column.created_at|date:"Y年m月d日" }}</div>
+                </div>
+            </div>
+            <div class="featured-excerpt">
+                {{ featured_column.content|striptags|truncatewords:50 }}
+            </div>
+            <a href="{% url 'column_detail' featured_column.id %}" class="btn-featured">続きを読む →</a>
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- コラム一覧 -->
+    {% if page_obj %}
+    <div class="columns-list">
+        {% for column in page_obj %}
+        <article class="column-card">
+            <div class="column-card-header">
+                <div class="author-info">
+                    <div class="author-avatar">
+                        {{ column.user.username|slice:":1"|upper }}
+                    </div>
+                    <div class="author-details">
+                        <h4>{{ column.user.username }}</h4>
+                        <div class="post-date">
+                            {{ column.created_at|date:"Y年m月d日 H:i" }}
+                        </div>
+                    </div>
+                </div>
+                {% if column.is_featured %}
+                <span class="column-badge">注目</span>
+                {% endif %}
+            </div>
+
+            <a href="{% url 'column_detail' column.id %}" style="text-decoration: none; color: inherit;">
+                <h3 class="column-title">{{ column.title }}</h3>
+                <div class="column-excerpt">
+                    {{ column.content|striptags|truncatewords:40 }}
+                </div>
+            </a>
+
+            <div class="column-footer">
+                <div class="column-stats">
+                    <div class="stat-item">
+                        <span>{{ column.view_count }} 閲覧</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>{{ column.comment_count }} コメント</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>{{ column.like_count }} いいね</span>
+                    </div>
+                </div>
+                <a href="{% url 'column_detail' column.id %}" class="btn-read-more">
+                    続きを読む →
+                </a>
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+
+    <!-- ページネーション -->
+    {% if page_obj.has_other_pages %}
+    <div class="pagination">
+        {% if page_obj.has_previous %}
+        <a href="?{% if request.GET.sort %}sort={{ request.GET.sort }}&{% endif %}page=1">« 最初</a>
+        <a href="?{% if request.GET.sort %}sort={{ request.GET.sort }}&{% endif %}page={{ page_obj.previous_page_number }}">‹ 前へ</a>
+        {% endif %}
+
+        {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+        <span class="current">{{ num }}</span>
+        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+        <a href="?{% if request.GET.sort %}sort={{ request.GET.sort }}&{% endif %}page={{ num }}">{{ num }}</a>
+        {% endif %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+        <a href="?{% if request.GET.sort %}sort={{ request.GET.sort }}&{% endif %}page={{ page_obj.next_page_number }}">次へ ›</a>
+        <a href="?{% if request.GET.sort %}sort={{ request.GET.sort }}&{% endif %}page={{ page_obj.paginator.num_pages }}">最後 »</a>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {% else %}
+    <!-- 空の状態 -->
+    <div class="empty-state">
+        <h3>まだ投稿がありません</h3>
+        <p>映画について語る最初の投稿者になりましょう！</p>
+        {% if user.is_staff %}
+        <a href="{% url 'column_create' %}" class="btn-create">✍️ 記事を投稿</a>
+        {% else %}
+        <a href="{% url 'login_view' %}" class="btn-create">ログインして投稿</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

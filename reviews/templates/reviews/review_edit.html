@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+
+{% block title %}レビューを編集 - コーヒーブレイク・メーター{% endblock %}
+
+{% block content %}
+<style>
+.page-header {
+    background: linear-gradient(135deg, #8B4513 0%, #5D3A1A 100%);
+    color: white;
+    padding: 40px;
+    border-radius: 12px;
+    margin-bottom: 40px;
+    text-align: center;
+}
+
+.page-header h1 {
+    margin: 0;
+    font-size: 2.5rem;
+}
+
+.form-container {
+    background: white;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.form-group {
+    margin-bottom: 25px;
+}
+
+.form-label {
+    display: block;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 12px;
+    font-size: 1.1rem;
+}
+
+.form-check-inline {
+    display: inline-block;
+    margin-right: 30px;
+}
+
+.form-check-inline input[type="radio"] {
+    margin-right: 8px;
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+}
+
+.form-check-inline label {
+    font-size: 1.1rem;
+    cursor: pointer;
+}
+
+.form-control {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #8B4513;
+    box-shadow: 0 0 0 3px rgba(139, 69, 19, 0.1);
+}
+
+textarea.form-control {
+    min-height: 150px;
+    font-family: inherit;
+    line-height: 1.6;
+}
+
+.btn-submit {
+    background: #8B4513;
+    color: white;
+    padding: 15px 40px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-submit:hover {
+    background: #5D3A1A;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.btn-cancel {
+    background: #6c757d;
+    color: white;
+    padding: 15px 40px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 1.1rem;
+    font-weight: 600;
+    display: inline-block;
+    margin-left: 10px;
+    transition: all 0.3s;
+}
+
+.btn-cancel:hover {
+    background: #5a6268;
+    color: white;
+}
+</style>
+
+<!-- ページヘッダー -->
+<div class="page-header">
+    <h1>レビューを編集</h1>
+    <p>{{ review.movie.title }}</p>
+</div>
+
+<!-- フォーム -->
+<div class="form-container">
+    <form method="post">
+        {% csrf_token %}
+        
+        <!-- 評価 -->
+        <div class="form-group">
+            <label class="form-label">あなたの評価</label>
+            <div>
+                <div class="form-check-inline">
+                    <input type="radio" name="is_hot" value="True" id="hot" {% if review.is_hot %}checked{% endif %}>
+                    <label for="hot">👍 良かった！</label>
+                </div>
+                <div class="form-check-inline">
+                    <input type="radio" name="is_hot" value="False" id="cold" {% if not review.is_hot %}checked{% endif %}>
+                    <label for="cold">👎 悪かった...</label>
+                </div>
+            </div>
+        </div>
+        
+        <!-- コメント -->
+        <div class="form-group">
+            <label class="form-label">コメント（任意）</label>
+            <textarea name="comment" class="form-control" placeholder="コメントを入力してください">{{ review.comment }}</textarea>
+        </div>
+        
+        <!-- ボタン -->
+        <div style="text-align: center; margin-top: 40px;">
+            <button type="submit" class="btn-submit">更新する</button>
+            <a href="{% url 'movie_detail' review.movie.pk %}" class="btn-cancel">キャンセル</a>
+        </div>
+    </form>
+</div>
+
+{% endblock %}

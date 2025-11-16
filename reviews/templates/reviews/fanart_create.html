@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}ファンアート投稿 - Gap Movies{% endblock %}
+
+{% block extra_css %}
+<style>
+    .upload-header {
+        background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
+        color: white;
+        padding: 40px 0;
+        margin-bottom: 40px;
+        text-align: center;
+    }
+
+    .upload-header h1 {
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin: 0;
+    }
+
+    .upload-form-container {
+        max-width: 700px;
+        margin: 0 auto;
+        background: white;
+        padding: 40px;
+        border-radius: 15px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .form-section {
+        margin-bottom: 30px;
+    }
+
+    .form-label {
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 10px;
+        display: block;
+    }
+
+    .form-control, .form-select {
+        padding: 12px;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: #4a5568;
+        box-shadow: 0 0 0 3px rgba(74, 85, 104, 0.1);
+        outline: none;
+    }
+
+    /* 画像プレビュー */
+    #imagePreview {
+        display: none;
+        margin-top: 20px;
+        text-align: center;
+    }
+
+    #previewImg {
+        max-width: 100%;
+        max-height: 400px;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+
+    .help-text {
+        font-size: 0.9rem;
+        color: #666;
+        margin-top: 8px;
+    }
+
+    /* ボタン */
+    .btn-submit {
+        background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
+        color: white;
+        padding: 15px 40px;
+        border: none;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 1.1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        width: 100%;
+    }
+
+    .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(74, 85, 104, 0.3);
+    }
+
+    .btn-cancel {
+        display: inline-block;
+        color: #4a5568;
+        padding: 12px 30px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        text-align: center;
+        width: 100%;
+        margin-top: 15px;
+    }
+
+    .btn-cancel:hover {
+        color: #2d3748;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="upload-header">
+    <div class="container">
+        <h1>🎨 ファンアート投稿</h1>
+    </div>
+</div>
+
+<div class="container">
+    <div class="upload-form-container">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div class="form-section">
+                <label class="form-label">関連映画</label>
+                {{ form.movie }}
+            </div>
+
+            <div class="form-section">
+                <label class="form-label">タイトル</label>
+                {{ form.title }}
+            </div>
+
+            <div class="form-section">
+                <label class="form-label">画像</label>
+                {{ form.image }}
+                <div id="imagePreview">
+                    <img id="previewImg" src="" alt="プレビュー">
+                </div>
+            </div>
+
+            <div class="form-section">
+                <label class="form-label">説明（任意）</label>
+                {{ form.description }}
+                <div class="help-text">作品についての説明やこだわりポイントなど</div>
+            </div>
+
+            <!-- エラー表示 -->
+            {% if form.errors %}
+            <div class="alert alert-danger">
+                {{ form.errors }}
+            </div>
+            {% endif %}
+
+            <!-- 送信ボタン -->
+            <button type="submit" class="btn-submit">📤 投稿する</button>
+            <a href="{% url 'fanart_list' %}" class="btn-cancel">キャンセル</a>
+        </form>
+    </div>
+</div>
+
+<script>
+// 画像プレビュー
+document.querySelector('input[type="file"]').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('previewImg').src = e.target.result;
+            document.getElementById('imagePreview').style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    }
+});
+</script>
+{% endblock %}

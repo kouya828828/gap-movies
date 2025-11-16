@@ -1,0 +1,272 @@
+{% extends "base.html" %}
+
+{% block title %}タイムライン - Gap Movies{% endblock %}
+
+{% block content %}
+<style>
+.timeline-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 60px 0;
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.timeline-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.timeline-subtitle {
+    font-size: 1.1rem;
+    opacity: 0.9;
+}
+
+.activity-card {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+    transition: all 0.3s;
+}
+
+.activity-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.activity-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+.activity-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.activity-user-info {
+    flex: 1;
+}
+
+.activity-username {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: #333;
+    text-decoration: none;
+}
+
+.activity-username:hover {
+    color: #667eea;
+}
+
+.activity-time {
+    color: #999;
+    font-size: 0.9rem;
+}
+
+.activity-type-badge {
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.badge-review {
+    background: #e3f2fd;
+    color: #1976d2;
+}
+
+.badge-column {
+    background: #f3e5f5;
+    color: #7b1fa2;
+}
+
+.activity-content {
+    margin-top: 15px;
+}
+
+.activity-movie-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #667eea;
+    text-decoration: none;
+    margin-bottom: 10px;
+    display: inline-block;
+}
+
+.activity-movie-title:hover {
+    color: #764ba2;
+}
+
+.activity-column-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #764ba2;
+    text-decoration: none;
+    margin-bottom: 10px;
+    display: inline-block;
+}
+
+.activity-column-title:hover {
+    color: #667eea;
+}
+
+.activity-scores {
+    display: flex;
+    gap: 20px;
+    margin: 15px 0;
+}
+
+.score-item {
+    text-align: center;
+    padding: 10px 20px;
+    background: #f5f5f5;
+    border-radius: 8px;
+}
+
+.score-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #667eea;
+}
+
+.score-label {
+    font-size: 0.85rem;
+    color: #666;
+}
+
+.empty-timeline {
+    text-align: center;
+    padding: 80px 20px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.empty-timeline h3 {
+    font-size: 1.5rem;
+    color: #666;
+    margin-bottom: 15px;
+}
+
+.empty-timeline p {
+    color: #999;
+    font-size: 1.1rem;
+}
+
+.btn-find-users {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 12px 30px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.btn-find-users:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    color: white;
+}
+</style>
+
+<div class="timeline-header">
+    <div class="container">
+        <h1 class="timeline-title">📱 タイムライン</h1>
+        <p class="timeline-subtitle">フォロー中のユーザーの最新活動をチェック</p>
+    </div>
+</div>
+
+<div class="container">
+    {% if activities %}
+        {% for activity in activities %}
+        <div class="activity-card">
+            <div class="activity-header">
+                <a href="{% url 'user_profile' activity.user.username %}" style="text-decoration: none;">
+                    <div class="activity-avatar">
+                        {{ activity.user.username|slice:":1"|upper }}
+                    </div>
+                </a>
+                <div class="activity-user-info">
+                    <a href="{% url 'user_profile' activity.user.username %}" class="activity-username">
+                        {{ activity.user.username }}
+                    </a>
+                    <div class="activity-time">{{ activity.created_at|timesince }}前</div>
+                </div>
+                <span class="activity-type-badge {% if activity.type == 'review' %}badge-review{% else %}badge-column{% endif %}">
+                    {% if activity.type == 'review' %}📝 レビュー{% else %}✍️ コラム{% endif %}
+                </span>
+            </div>
+            
+            <div class="activity-content">
+                {% if activity.type == 'review' %}
+                    <a href="{% url 'movie_detail' activity.content.movie.pk %}" class="activity-movie-title">
+                        🎬 {{ activity.content.movie.title }}
+                    </a>
+                    
+                    {% if activity.content.expectation and activity.content.satisfaction %}
+                    <div class="activity-scores">
+                        <div class="score-item">
+                            <div class="score-value">{{ activity.content.expectation }}</div>
+                            <div class="score-label">期待度</div>
+                        </div>
+                        <div class="score-item">
+                            <div class="score-value">{{ activity.content.satisfaction }}</div>
+                            <div class="score-label">満足度</div>
+                        </div>
+                        <div class="score-item">
+                            <div class="score-value">{{ activity.content.get_gap_score }}</div>
+                            <div class="score-label">ギャップ</div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if activity.content.comment %}
+                    <p style="color: #666; line-height: 1.6; margin-top: 15px;">
+                        {{ activity.content.comment|truncatewords:50 }}
+                    </p>
+                    {% endif %}
+                {% else %}
+                    <a href="{% url 'column_detail' activity.content.pk %}" class="activity-column-title">
+                        {{ activity.content.title }}
+                    </a>
+                    
+                    <p style="color: #666; line-height: 1.6; margin-top: 15px;">
+                        {{ activity.content.content|striptags|truncatewords:50 }}
+                    </p>
+                    
+                    <div style="margin-top: 15px; color: #999; font-size: 0.9rem;">
+                        👁️ {{ activity.content.view_count }} 閲覧 | 👍 {{ activity.content.likes.count }} いいね
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+    <div class="empty-timeline">
+        <h3>📭 タイムラインが空です</h3>
+        <p>フォローしているユーザーの活動がここに表示されます</p>
+        <a href="{% url 'movie_list' %}" class="btn-find-users">映画を探してユーザーを見つける</a>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}

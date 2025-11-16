@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+
+{% block title %}お問い合わせ - Gap Movies{% endblock %}
+
+{% block content %}
+<style>
+.contact-header {
+    background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
+    color: white;
+    padding: 60px 0;
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.contact-title {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.contact-container {
+    max-width: 700px;
+    margin: 0 auto 60px;
+    background: white;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.form-group {
+    margin-bottom: 25px;
+}
+
+.form-label {
+    font-weight: 600;
+    margin-bottom: 10px;
+    display: block;
+    color: #2d3748;
+}
+
+.form-input,
+.form-select,
+.form-textarea {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s;
+    font-family: 'Noto Sans JP', sans-serif;
+}
+
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+    outline: none;
+    border-color: #4a5568;
+}
+
+.form-textarea {
+    min-height: 200px;
+    resize: vertical;
+}
+
+.btn-submit {
+    width: 100%;
+    padding: 15px;
+    background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(74, 85, 104, 0.4);
+}
+
+.info-box {
+    background: #f7fafc;
+    border-left: 4px solid #4a5568;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+}
+
+.info-box h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+    color: #2d3748;
+}
+
+.info-box p {
+    color: #4a5568;
+    margin: 0;
+    line-height: 1.8;
+}
+
+.required {
+    color: #e53e3e;
+    margin-left: 5px;
+}
+</style>
+
+<div class="contact-header">
+    <div class="container">
+        <h1 class="contact-title">お問い合わせ</h1>
+        <p>ご質問やご要望がございましたら、お気軽にお問い合わせください</p>
+    </div>
+</div>
+
+<div class="container">
+    <div class="contact-container">
+        <div class="info-box">
+            <h3>お問い合わせの前に</h3>
+            <p>
+                よくある質問については、<a href="#" style="color: #4a5568; font-weight: 600;">FAQ</a>をご確認ください。<br>
+                通常、2-3営業日以内にご返信いたします。
+            </p>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label class="form-label">お名前<span class="required">*</span></label>
+                <input type="text" name="name" class="form-input" required placeholder="山田太郎">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">メールアドレス<span class="required">*</span></label>
+                <input type="email" name="email" class="form-input" required placeholder="example@email.com">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">お問い合わせ種別<span class="required">*</span></label>
+                <select name="category" class="form-select" required>
+                    <option value="">選択してください</option>
+                    <option value="bug">バグ報告</option>
+                    <option value="feature">機能要望</option>
+                    <option value="account">アカウント関連</option>
+                    <option value="content">コンテンツ削除依頼</option>
+                    <option value="other">その他</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">件名<span class="required">*</span></label>
+                <input type="text" name="subject" class="form-input" required placeholder="お問い合わせの件名">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">お問い合わせ内容<span class="required">*</span></label>
+                <textarea name="message" class="form-textarea" required placeholder="お問い合わせ内容を詳しくご記入ください"></textarea>
+            </div>
+            
+            <button type="submit" class="btn-submit">送信する</button>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

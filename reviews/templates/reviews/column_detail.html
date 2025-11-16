@@ -1,0 +1,200 @@
+{% extends "base.html" %}
+
+{% block title %}{{ column.title }} - コーヒーブレイク・メーター{% endblock %}
+
+{% block content %}
+<style>
+.column-header {
+    background: white;
+    padding: 40px;
+    border-radius: 12px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.column-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.column-meta {
+    color: #666;
+    font-size: 1rem;
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.column-content {
+    background: white;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
+}
+
+.column-content p {
+    line-height: 1.8;
+    margin-bottom: 1.5rem;
+    color: #333;
+}
+
+.related-movies {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
+}
+
+.related-movie-card {
+    display: inline-block;
+    background: #f5f5f5;
+    padding: 10px 20px;
+    border-radius: 8px;
+    margin: 5px;
+    text-decoration: none;
+    color: #333;
+    transition: all 0.3s;
+}
+
+.related-movie-card:hover {
+    background: #8B4513;
+    color: white;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+</style>
+
+<!-- コラムヘッダー -->
+<div class="column-header">
+    <h1 class="column-title">{{ column.title }}</h1>
+    
+    <div class="column-meta">
+        <span>by {{ column.author.username }}</span> | 
+        <span>{{ column.created_at|date:"Y年n月j日 H:i" }}</span>
+        {% if column.created_at != column.updated_at %}
+        <span>（更新: {{ column.updated_at|date:"Y年n月j日 H:i" }}）</span>
+        {% endif %}
+        | 
+        <span>閲覧数: {{ column.view_count }}</span>
+    </div>
+    
+    <!-- 編集・削除ボタン（自分のコラムのみ） -->
+    {% if user.is_authenticated and user == column.author %}
+    <div class="action-buttons">
+        <a href="{% url 'column_edit' column.pk %}" style="background: #8B4513; color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 600;">
+            編集
+        </a>
+        <a href="{% url 'column_delete' column.pk %}" onclick="return confirm('本当に削除しますか？')" style="background: #dc3545; color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 600;">
+            削除
+        </a>
+    </div>
+    {% endif %}
+</div>
+<!-- いいねボタン -->
+<div style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); margin-bottom: 30px; text-align: center;">
+    {% if user.is_authenticated %}
+        <form action="{% url 'toggle_like' column.pk %}" method="post" style="display: inline;">
+            {% csrf_token %}
+            <button type="submit" style="background: {% if is_liked %}#e74c3c{% else %}#e0e0e0{% endif %}; color: white; border: none; padding: 12px 30px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 1.1rem; transition: all 0.3s;">
+                ❤️ いいね {{ column.likes.count }}
+            </button>
+        </form>
+    {% else %}
+        <a href="{% url 'login' %}" style="display: inline-block; background: #e0e0e0; color: white; padding: 12px 30px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 1.1rem;">
+            ❤️ いいね {{ column.likes.count }}
+        </a>
+        <p style="margin-top: 10px; color: #666; font-size: 0.9rem;">いいねするにはログインしてください</p>
+    {% endif %}
+</div>
+
+<!-- サムネイル画像 -->
+{% if column.thumbnail %}
+<div style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); margin-bottom: 30px; text-align: center;">
+    <img src="{{ column.thumbnail.url }}" alt="{{ column.title }}" style="max-width: 100%; max-height: 500px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+</div>
+{% endif %}
+
+<!-- コラム本文 -->
+<div class="column-content">
+            {{ column.content|safe }}
+        </div>
+
+<!-- 関連映画 -->
+{% if column.related_movies.all %}
+<div class="related-movies">
+    <h3 style="margin-bottom: 15px; color: #333;">関連映画</h3>
+    {% for movie in column.related_movies.all %}
+    <a href="{% url 'movie_detail' movie.pk %}" class="related-movie-card">
+        {{ movie.title }} ({{ movie.release_year }})
+    </a>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- 戻るボタン -->
+<div style="text-align: center;">
+    <a href="{% url 'column_list' %}" style="display: inline-block; background: #8B4513; color: white; padding: 12px 30px; border-radius: 8px; text-decoration: none; font-weight: 600;">
+        コラム一覧に戻る
+    </a>
+</div>
+<!-- コメントセクション -->
+<div style="margin-top: 60px; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+    <h3 style="font-size: 1.5rem; margin-bottom: 20px; color: #333; border-bottom: 2px solid #8B4513; padding-bottom: 10px;">
+        コメント ({{ column.comments.count }}件)
+    </h3>
+    
+    <!-- コメント一覧 -->
+    {% for comment in column.comments.all %}
+    <div style="padding: 20px; margin-bottom: 15px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #8B4513;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <strong style="color: #8B4513;">{{ comment.user.username }}</strong>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <small style="color: #666;">{{ comment.created_at|date:"Y年n月j日 H:i" }}</small>
+                {% if comment.user == user %}
+                <a href="{% url 'delete_comment' comment.pk %}" 
+                   onclick="return confirm('コメントを削除しますか？')"
+                   style="color: #dc3545; font-size: 0.9rem; text-decoration: none;">
+                    削除
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        <p style="margin: 0; line-height: 1.6; color: #333;">{{ comment.text }}</p>
+    </div>
+    {% empty %}
+    <p style="text-align: center; color: #999; padding: 40px 0;">まだコメントがありません</p>
+    {% endfor %}
+    
+    <!-- コメント投稿フォーム -->
+    {% if user.is_authenticated %}
+    <div style="margin-top: 30px; padding: 25px; background: #f8f9fa; border-radius: 8px;">
+        <h4 style="margin-bottom: 15px; color: #333;">コメントを投稿</h4>
+        <form method="post" action="{% url 'add_comment_to_column' column.pk %}">
+            {% csrf_token %}
+            <textarea name="text" 
+                      class="form-control" 
+                      placeholder="コメントを入力してください（最大1000文字）" 
+                      rows="3" 
+                      required
+                      style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1rem; margin-bottom: 15px;"></textarea>
+            <button type="submit" 
+                    style="background: #8B4513; color: white; padding: 12px 30px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s;">
+                コメントを投稿
+            </button>
+        </form>
+    </div>
+    {% else %}
+    <p style="text-align: center; padding: 30px; background: #f8f9fa; border-radius: 8px; margin-top: 30px;">
+        コメントを投稿するには<a href="{% url 'login' %}" style="color: #8B4513; font-weight: 600;">ログイン</a>してください
+    </p>
+    {% endif %}
+</div>
+{% endblock %}

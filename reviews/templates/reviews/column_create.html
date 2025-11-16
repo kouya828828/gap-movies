@@ -1,0 +1,208 @@
+{% extends "base.html" %}
+
+{% block title %}コラムを書く - コーヒーブレイク・メーター{% endblock %}
+
+{% block content %}
+<style>
+.page-header {
+    background: linear-gradient(135deg, #8B4513 0%, #5D3A1A 100%);
+    color: white;
+    padding: 40px;
+    border-radius: 12px;
+    margin-bottom: 40px;
+    text-align: center;
+}
+
+.page-header h1 {
+    margin: 0;
+    font-size: 2.5rem;
+}
+
+.form-container {
+    background: white;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.form-group {
+    margin-bottom: 25px;
+}
+
+.form-label {
+    display: block;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 8px;
+    font-size: 1rem;
+}
+
+.form-control {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #8B4513;
+    box-shadow: 0 0 0 3px rgba(139, 69, 19, 0.1);
+}
+
+textarea.form-control {
+    min-height: 400px;
+    font-family: inherit;
+    line-height: 1.6;
+}
+
+.checkbox-group {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.checkbox-item input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+.checkbox-item label {
+    cursor: pointer;
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+.btn-submit {
+    background: #8B4513;
+    color: white;
+    padding: 15px 40px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-submit:hover {
+    background: #5D3A1A;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.btn-cancel {
+    background: #6c757d;
+    color: white;
+    padding: 15px 40px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 1.1rem;
+    font-weight: 600;
+    display: inline-block;
+    margin-left: 10px;
+    transition: all 0.3s;
+}
+
+.btn-cancel:hover {
+    background: #5a6268;
+    color: white;
+}
+
+.help-text {
+    font-size: 0.85rem;
+    color: #666;
+    margin-top: 5px;
+}
+</style>
+
+<!-- ページヘッダー -->
+<div class="page-header">
+    <h1>コラムを書く</h1>
+    <p>映画についてのあなたの考えを共有しましょう</p>
+</div>
+
+<!-- フォーム -->
+<div class="form-container">
+    <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+        
+        <!-- タイトル -->
+        <div class="form-group">
+            <label class="form-label">{{ form.title.label }}</label>
+            {{ form.title }}
+            {% if form.title.errors %}
+                <div style="color: #dc3545; font-size: 0.9rem; margin-top: 5px;">
+                    {{ form.title.errors }}
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- 本文 -->
+        <div class="form-group">
+            <label class="form-label">{{ form.content.label }}</label>
+            {{ form.content }}
+            <div class="help-text">
+                改行は自動で段落に変換されます
+            </div>
+            {% if form.content.errors %}
+                <div style="color: #dc3545; font-size: 0.9rem; margin-top: 5px;">
+                    {{ form.content.errors }}
+                </div>
+            {% endif %}
+        </div>
+        <div class="form-group">
+            <label class="form-label">{{ form.thumbnail.label }}</label>
+            {{ form.thumbnail }}
+            <div class="help-text">
+                JPG、PNG、GIF形式の画像をアップロードできます
+            </div>
+            {% if form.thumbnail.errors %}
+                <div style="color: #dc3545; font-size: 0.9rem; margin-top: 5px;">
+                    {{ form.thumbnail.errors }}
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- 関連映画 -->
+        <div class="form-group">
+            <label class="form-label">{{ form.related_movies.label }}</label>
+            <div class="help-text" style="margin-bottom: 10px;">
+                このコラムで言及する映画を選択してください（複数選択可）
+            </div>
+            <div class="checkbox-group">
+                {% for checkbox in form.related_movies %}
+                <div class="checkbox-item">
+                    {{ checkbox.tag }}
+                    <label for="{{ checkbox.id_for_label }}">{{ checkbox.choice_label }}</label>
+                </div>
+                {% endfor %}
+            </div>
+            {% if form.related_movies.errors %}
+                <div style="color: #dc3545; font-size: 0.9rem; margin-top: 5px;">
+                    {{ form.related_movies.errors }}
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- ボタン -->
+        <div style="text-align: center; margin-top: 40px;">
+            <button type="submit" class="btn-submit">投稿する</button>
+            <a href="{% url 'column_list' %}" class="btn-cancel">キャンセル</a>
+        </div>
+    </form>
+</div>
+
+{% endblock %}

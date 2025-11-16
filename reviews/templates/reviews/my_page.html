@@ -1,0 +1,667 @@
+{% extends 'reviews/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+    .profile-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 50px 0;
+        margin-bottom: 40px;
+        color: white;
+    }
+
+    .profile-container {
+        display: flex;
+        align-items: center;
+        gap: 30px;
+    }
+
+    .profile-avatar {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        background: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        font-weight: 800;
+        color: #667eea;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    }
+
+    .profile-info {
+        flex: 1;
+    }
+
+    .profile-name {
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin-bottom: 10px;
+    }
+
+    .profile-bio {
+        font-size: 1.1rem;
+        margin-bottom: 20px;
+        opacity: 0.95;
+    }
+
+    .profile-stats {
+        display: flex;
+        gap: 30px;
+        flex-wrap: wrap;
+    }
+
+    .stat-box {
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+        padding: 15px 25px;
+        border-radius: 12px;
+        text-align: center;
+    }
+
+    .stat-number {
+        font-size: 2rem;
+        font-weight: 800;
+        margin-bottom: 5px;
+    }
+
+    .stat-label {
+        font-size: 0.9rem;
+        opacity: 0.9;
+    }
+
+    .btn-edit-profile {
+        background: white;
+        color: #667eea;
+        padding: 12px 25px;
+        border-radius: 25px;
+        text-decoration: none;
+        font-weight: 600;
+        display: inline-block;
+        transition: all 0.3s ease;
+        margin-top: 20px;
+    }
+
+    .btn-edit-profile:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(255,255,255,0.3);
+    }
+
+    .tabs-container {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        margin-bottom: 30px;
+        overflow: hidden;
+    }
+
+    .tabs {
+        display: flex;
+        border-bottom: 2px solid #f0f0f0;
+    }
+
+    .tab {
+        flex: 1;
+        padding: 20px;
+        text-align: center;
+        background: transparent;
+        border: none;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #7f8c8d;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border-bottom: 3px solid transparent;
+        margin-bottom: -2px;
+    }
+
+    .tab:hover {
+        color: #667eea;
+        background: #f8f9fa;
+    }
+
+    .tab.active {
+        color: #667eea;
+        border-bottom-color: #667eea;
+    }
+
+    .tab-content {
+        display: none;
+        padding: 30px;
+    }
+
+    .tab-content.active {
+        display: block;
+    }
+
+    /* レビューカード */
+    .review-card {
+        background: white;
+        border-radius: 12px;
+        padding: 25px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        margin-bottom: 20px;
+        transition: all 0.3s ease;
+    }
+
+    .review-card:hover {
+        box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+        transform: translateY(-3px);
+    }
+
+    .review-header {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 20px;
+    }
+
+    .review-poster {
+        width: 80px;
+        height: 120px;
+        object-fit: cover;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+
+    .review-info {
+        flex: 1;
+    }
+
+    .movie-title-link {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #2c3e50;
+        text-decoration: none;
+        margin-bottom: 8px;
+        display: block;
+    }
+
+    .movie-title-link:hover {
+        color: #667eea;
+    }
+
+    .review-date {
+        font-size: 0.9rem;
+        color: #7f8c8d;
+        margin-bottom: 15px;
+    }
+
+    .scores-display {
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+
+    .score-badge {
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .expectation-badge {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+    }
+
+    .satisfaction-badge {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        color: white;
+    }
+
+    .gap-badge {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+
+    .review-text {
+        color: #5a6c7d;
+        line-height: 1.8;
+        margin-bottom: 15px;
+    }
+
+    .review-actions {
+        display: flex;
+        gap: 15px;
+        padding-top: 15px;
+        border-top: 1px solid #f0f0f0;
+    }
+
+    .btn-action {
+        padding: 8px 20px;
+        border-radius: 20px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+    }
+
+    .btn-edit {
+        background: #f8f9fa;
+        color: #667eea;
+        border: 2px solid #667eea;
+    }
+
+    .btn-edit:hover {
+        background: #667eea;
+        color: white;
+    }
+
+    .btn-delete {
+        background: #f8f9fa;
+        color: #e74c3c;
+        border: 2px solid #e74c3c;
+    }
+
+    .btn-delete:hover {
+        background: #e74c3c;
+        color: white;
+    }
+
+    /* お気に入りグリッド */
+    .favorites-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 20px;
+    }
+
+    .favorite-card {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        transition: all 0.3s ease;
+        text-decoration: none;
+        color: inherit;
+        position: relative;
+    }
+
+    .favorite-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 15px rgba(0,0,0,0.15);
+    }
+
+    .favorite-poster {
+        width: 100%;
+        aspect-ratio: 2/3;
+        object-fit: cover;
+    }
+
+    .remove-favorite {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background: rgba(231, 76, 60, 0.9);
+        color: white;
+        border: none;
+        cursor: pointer;
+        font-size: 1.2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        z-index: 2;
+    }
+
+    .remove-favorite:hover {
+        background: #e74c3c;
+        transform: scale(1.1);
+    }
+
+    .favorite-info {
+        padding: 12px;
+    }
+
+    .favorite-title {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #2c3e50;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    /* コラムカード */
+    .column-card {
+        background: white;
+        border-radius: 12px;
+        padding: 25px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        margin-bottom: 20px;
+        transition: all 0.3s ease;
+    }
+
+    .column-card:hover {
+        box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+        transform: translateY(-3px);
+    }
+
+    .column-title {
+        font-size: 1.4rem;
+        font-weight: 700;
+        margin-bottom: 12px;
+        color: #2c3e50;
+    }
+
+    .column-title a {
+        color: inherit;
+        text-decoration: none;
+    }
+
+    .column-title a:hover {
+        color: #667eea;
+    }
+
+    .column-excerpt {
+        color: #5a6c7d;
+        line-height: 1.7;
+        margin-bottom: 15px;
+    }
+
+    .column-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 15px;
+        border-top: 1px solid #f0f0f0;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .column-stats {
+        display: flex;
+        gap: 15px;
+        font-size: 0.9rem;
+        color: #7f8c8d;
+    }
+
+    /* 空の状態 */
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: #7f8c8d;
+    }
+
+    .empty-state-icon {
+        font-size: 4rem;
+        margin-bottom: 20px;
+        opacity: 0.5;
+    }
+
+    .empty-state h3 {
+        font-size: 1.3rem;
+        margin-bottom: 10px;
+    }
+
+    .empty-state p {
+        margin-bottom: 20px;
+    }
+
+    .btn-primary {
+        display: inline-block;
+        padding: 12px 30px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 25px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        color: white;
+    }
+
+    @media (max-width: 768px) {
+        .profile-container {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .profile-name {
+            font-size: 1.8rem;
+        }
+
+        .tabs {
+            flex-direction: column;
+        }
+
+        .tab {
+            border-bottom: 1px solid #f0f0f0;
+            border-right: none;
+        }
+
+        .tab.active {
+            border-bottom: 1px solid #667eea;
+            border-right: none;
+        }
+
+        .review-header {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .favorites-grid {
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- プロフィールヘッダー -->
+<section class="profile-header">
+    <div class="container">
+        <div class="profile-container">
+            <div class="profile-avatar">
+                {{ user.username|slice:":1"|upper }}
+            </div>
+            <div class="profile-info">
+                <h1 class="profile-name">{{ user.username }}</h1>
+                <p class="profile-bio">Gap Moviesで映画の本当の価値を探求中</p>
+                <div class="profile-stats">
+                    <div class="stat-box">
+                        <div class="stat-number">{{ review_count }}</div>
+                        <div class="stat-label">レビュー</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number">{{ favorite_count }}</div>
+                        <div class="stat-label">お気に入り</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number">{{ column_count }}</div>
+                        <div class="stat-label">投稿</div>
+                    </div>
+                </div>
+                <a href="{% url 'edit_profile' %}" class="btn-edit-profile">プロフィール編集</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container">
+    <!-- タブ -->
+    <div class="tabs-container">
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('reviews')">📝 レビュー</button>
+            <button class="tab" onclick="switchTab('favorites')">❤️ お気に入り</button>
+            <button class="tab" onclick="switchTab('columns')">💬 投稿</button>
+            <button class="tab" onclick="switchTab('watchlist')">🎬 観たい</button>
+        </div>
+
+        <!-- レビュータブ -->
+        <div class="tab-content active" id="reviews-content">
+            {% if reviews %}
+            {% for review in reviews %}
+            <div class="review-card">
+                <div class="review-header">
+                    <a href="{% url 'movie_detail' review.movie.id %}">
+                        <img src="{% if review.movie.poster_path %}https://image.tmdb.org/t/p/w200{{ review.movie.poster_path }}{% else %}{% static 'images/no-poster.png' %}{% endif %}" 
+                             alt="{{ review.movie.title }}" class="review-poster">
+                    </a>
+                    <div class="review-info">
+                        <a href="{% url 'movie_detail' review.movie.id %}" class="movie-title-link">
+                            {{ review.movie.title }}
+                        </a>
+                        <div class="review-date">
+                            📅 {{ review.created_at|date:"Y年m月d日" }}
+                        </div>
+                        <div class="scores-display">
+                            <div class="score-badge expectation-badge">
+                                🔥 期待度 {{ review.hot_score }}
+                            </div>
+                            <div class="score-badge satisfaction-badge">
+                                ❄️ 満足度 {{ review.cold_score }}
+                            </div>
+                            <div class="score-badge gap-badge">
+                                📊 ギャップ {{ review.gap_score|floatformat:1 }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="review-text">
+                    {{ review.comment|truncatewords:50 }}
+                </div>
+                <div class="review-actions">
+                    <a href="{% url 'review_edit' review.id %}" class="btn-action btn-edit">✏️ 編集</a>
+                    <a href="{% url 'review_delete' review.id %}" class="btn-action btn-delete" 
+                       onclick="return confirm('このレビューを削除しますか？')">🗑️ 削除</a>
+                </div>
+            </div>
+            {% endfor %}
+            {% else %}
+            <div class="empty-state">
+                <div class="empty-state-icon">📝</div>
+                <h3>まだレビューがありません</h3>
+                <p>気になる映画を見つけてレビューを書いてみましょう</p>
+                <a href="{% url 'movie_list' %}" class="btn-primary">映画を探す</a>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- お気に入りタブ -->
+        <div class="tab-content" id="favorites-content">
+            {% if favorites %}
+            <div class="favorites-grid">
+                {% for favorite in favorites %}
+                <div class="favorite-card">
+                    <form method="post" action="{% url 'toggle_favorite' favorite.id %}" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="remove-favorite" title="お気に入りから削除">×</button>
+                    </form>
+                    <a href="{% url 'movie_detail' favorite.id %}">
+                        <img src="{% if favorite.poster_path %}https://image.tmdb.org/t/p/w300{{ favorite.poster_path }}{% else %}{% static 'images/no-poster.png' %}{% endif %}" 
+                             alt="{{ favorite.title }}" class="favorite-poster">
+                        <div class="favorite-info">
+                            <div class="favorite-title">{{ favorite.title }}</div>
+                        </div>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <div class="empty-state-icon">❤️</div>
+                <h3>お気に入りの映画がありません</h3>
+                <p>気に入った映画をお気に入りに追加しましょう</p>
+                <a href="{% url 'movie_list' %}" class="btn-primary">映画を探す</a>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- 投稿タブ -->
+        <div class="tab-content" id="columns-content">
+            {% if columns %}
+            {% for column in columns %}
+            <div class="column-card">
+                <h3 class="column-title">
+                    <a href="{% url 'column_detail' column.id %}">{{ column.title }}</a>
+                </h3>
+                <div class="column-excerpt">
+                    {{ column.content|striptags|truncatewords:40 }}
+                </div>
+                <div class="column-meta">
+                    <div class="column-stats">
+                        <span>👁️ {{ column.view_count }}</span>
+                        <span>💬 {{ column.comment_count }}</span>
+                        <span>📅 {{ column.created_at|date:"Y/m/d" }}</span>
+                    </div>
+                    <div class="review-actions">
+                        <a href="{% url 'column_edit' column.id %}" class="btn-action btn-edit">✏️ 編集</a>
+                        <a href="{% url 'column_delete' column.id %}" class="btn-action btn-delete" 
+                           onclick="return confirm('この投稿を削除しますか？')">🗑️ 削除</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+            {% else %}
+            <div class="empty-state">
+                <div class="empty-state-icon">💬</div>
+                <h3>まだ投稿がありません</h3>
+                <p>映画について語る記事を投稿してみましょう</p>
+                <a href="{% url 'column_create' %}" class="btn-primary">記事を投稿</a>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- 観たいタブ -->
+        <div class="tab-content" id="watchlist-content">
+            {% if watchlist %}
+            <div class="favorites-grid">
+                {% for movie in watchlist %}
+                <a href="{% url 'movie_detail' movie.id %}" class="favorite-card">
+                    <img src="{% if movie.poster_path %}https://image.tmdb.org/t/p/w300{{ movie.poster_path }}{% else %}{% static 'images/no-poster.png' %}{% endif %}" 
+                         alt="{{ movie.title }}" class="favorite-poster">
+                    <div class="favorite-info">
+                        <div class="favorite-title">{{ movie.title }}</div>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <div class="empty-state-icon">🎬</div>
+                <h3>観たい映画リストが空です</h3>
+                <p>気になる映画を「観たい」リストに追加しましょう</p>
+                <a href="{% url 'movie_list' %}" class="btn-primary">映画を探す</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function switchTab(tabName) {
+        // すべてのタブとコンテンツから active クラスを削除
+        document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+        // 選択されたタブとコンテンツに active クラスを追加
+        event.target.classList.add('active');
+        document.getElementById(tabName + '-content').classList.add('active');
+
+        // ローカルストレージに保存
+        localStorage.setItem('activeTab', tabName);
+    }
+
+    // ページ読み込み時に前回のタブを復元
+    document.addEventListener('DOMContentLoaded', function() {
+        const savedTab = localStorage.getItem('activeTab');
+        if (savedTab && document.getElementById(savedTab + '-content')) {
+            switchTab(savedTab);
+        }
+    });
+</script>
+{% endblock %}

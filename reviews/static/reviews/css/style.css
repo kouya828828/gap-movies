@@ -1,0 +1,169 @@
+/* reviews/static/reviews/css/style.css */
+
+/* --- ページ全体の基本設定 --- */
+body {
+    /* ベースをさらに明るく、クリーンなベージュ (F5F5DC: Beig/白) */
+    background-color: #F8F8F0; 
+    color: #4A2C2A; /* 濃い文字色でコントラストを確保 */
+    font-family: 'Arial', sans-serif;
+}
+
+/* --- ヘッダー/ナビゲーション（アクセントカラー） --- */
+.navbar {
+    /* 深煎りコーヒー色 (ナビゲーションで濃さを強調) */
+    background-color: #4A2C2A !important; 
+    /* ボーダーは背景と同じ非常に明るい色 */
+    border-bottom: 3px solid #E0D9D0; 
+}
+.navbar-brand {
+    color: #FFFFFF !important; /* ナビゲーション内の文字は白く */
+}
+
+/* --- 見出しとテキスト --- */
+.text-coffee {
+    /* 見出しは濃いコーヒー色 */
+    color: #4A2C2A !important; 
+    font-weight: 700;
+}
+
+/* --- カード（レビュー、映画情報など） --- */
+.card {
+    /* 背景を白にして、清潔感を出す */
+    background-color: #FFFFFF; 
+    border: 1px solid #D2B48C; /* 明るい茶色のボーダー */
+    border-radius: 8px; 
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 影をさらに薄く */
+}
+.card-title, .card-subtitle {
+    color: #4A2C2A; /* カード内の文字は濃い色 */
+}
+
+/* --- フォーム入力欄 --- */
+.form-control {
+    /* 白い入力欄の背景 */
+    background-color: #FFFFFF; 
+    color: #4A2C2A;
+    border: 1px solid #D2B48C;
+    border-radius: 4px;
+}
+.form-control::placeholder {
+    color: #AAAAAA; 
+}
+
+/* --- 評価ボタン（RadioSelect）の調整 --- */
+.form-check-inline {
+    display: inline-block;
+    margin-right: 1.5rem;
+}
+.form-check-label {
+    font-weight: bold;
+    cursor: pointer;
+    padding: 0.5rem 0.75rem;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+/* ☕ ホット（良かった）- 明るいカフェオレ色 */
+.form-check input[type="radio"]:checked + .form-check-label:contains("良かった") {
+    background-color: #D2B48C; /* 明るいカフェオレ色 */
+    color: #4A2C2A; /* 文字色は濃いエスプレッソ色 */
+}
+/* 🧊 コールド（悪かった）- 薄いグレーブラウン */
+.form-check input[type="radio"]:checked + .form-check-label:contains("悪かった") {
+    background-color: #E0D9D0; /* 薄いベージュ */
+    color: #4A2C2A;
+}
+
+/* ローストスコア/ホットスコアのボックスの色も調整 */
+/* ローストスコアのボックス（Info/コールド）*/
+.text-info {
+    color: #6F4E37 !important; /* Info (コールド) を深いコーヒー色に */
+}
+/* ホットスコアのボックス（Warning/ホット）*/
+.text-warning {
+    color: #D2B48C !important; /* Warning (ホット) をカフェオレ色に */
+}
+
+/* ゴールデンスコアのボックス */
+.bg-warning-subtle {
+    background-color: #F0E6DA !important; /* 非常に薄いカフェオレ色 */
+    border: 1px solid #D2B48C;
+}
+
+/* 映画通ユーザーのレビューがない場合のボックス (青色系を上書き) */
+.bg-info-subtle {
+    background-color: #E0D9D0 !important; /* 薄いベージュに */
+    color: #4A2C2A;
+}
+/* --- 映画カード（Netflix風レイアウト） --- */
+.movie-card {
+  position: relative;
+  width: 200px;
+  height: 300px;
+  overflow: hidden;
+  border-radius: 10px;
+  transition: transform 0.3s ease;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+.movie-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.movie-card:hover {
+  transform: scale(1.05);
+}
+.movie-info-overlay {
+  position: absolute;
+  bottom: 0;
+  background: rgba(0,0,0,0.7);
+  color: #fff;
+  width: 100%;
+  padding: 10px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.movie-card:hover .movie-info-overlay {
+  opacity: 1;
+}
+.movie-card {
+  position: relative;
+  width: 100%;
+  height: 300px;
+  overflow: hidden;
+  border-radius: 10px;
+  transition: transform 0.3s ease;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+.movie-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.movie-card:hover {
+  transform: scale(1.05);
+}
+.movie-info-overlay {
+  position: absolute;
+  bottom: 0;
+  background: rgba(0,0,0,0.7);
+  color: #fff;
+  width: 100%;
+  padding: 10px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.movie-card:hover .movie-info-overlay {
+  opacity: 1;
+}
+.fade-in {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeIn 0.6s ease forwards;
+}
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
