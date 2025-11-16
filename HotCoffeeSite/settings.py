@@ -126,7 +126,6 @@ if not DEBUG:
     SECURE_CONTENT_TYPE_NOSNIFF = True
 ```
 
-次に、`.env`ファイルを作成して、ローカル開発用の環境変数を設定しましょう：
 ```
 DEBUG=True
 SECRET_KEY=your-secret-key-here
