@@ -42,7 +42,9 @@ class Command(BaseCommand):
         return None
 
     def handle(self, *args, **options):
-        API_KEY = 'b9760e1d8453603c1da9bfe8a42be001'
+        import os
+        from decouple import config
+        API_KEY = config('TMDB_API_KEY', default='')
 
         if API_KEY == 'YOUR_TMDB_API_KEY_HERE':
             self.stdout.write(self.style.ERROR('❌ エラー: APIキーが設定されていません！'))
