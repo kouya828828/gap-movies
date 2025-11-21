@@ -839,30 +839,41 @@ def recommended_movies(request):
 # お問い合わせ
 # ========================================
 
+from .models import ContactMessage
+
 def contact(request):
-    """お問い合わせページ"""
-    from django.contrib import messages
-    
+    """お問い合わせフォーム"""
     if request.method == 'POST':
         name = request.POST.get('name')
         email = request.POST.get('email')
-        category = request.POST.get('category')
         subject = request.POST.get('subject')
         message = request.POST.get('message')
         
-        try:
-            send_mail(
-                subject=f'[Gap Movies] {subject}',
-                message=f'お名前: {name}\nメール: {email}\nカテゴリ: {category}\n\n{message}',
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[settings.CONTACT_EMAIL],
-                fail_silently=False,
+        if name and email and subject and message:
+            # データベースに保存
+            ContactMessage.objects.create(
+                name=name,
+                email=email,
+                subject=subject,
+                message=message
             )
-            messages.success(request, 'お問い合わせを送信しました。ご連絡ありがとうございます。')
-        except Exception as e:
-            messages.error(request, 'メール送信に失敗しました。後ほど再度お試しください。')
-        
-        return redirect('contact')
+            
+            # メール送信（既存のコード）
+            try:
+                send_mail(
+                    subject=f'【Gap Movies】{subject}',
+                    message=f'お名前: {name}\nメールアドレス: {email}\n\n{message}',
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[settings.CONTACT_EMAIL],
+                    fail_silently=False,
+                )
+                messages.success(request, 'お問い合わせを送信しました。')
+            except Exception as e:
+                messages.warning(request, 'お問い合わせは保存されましたが、メール送信に失敗しました。')
+            
+            return redirect('contact')
+        else:
+            messages.error(request, 'すべての項目を入力してください。')
     
     return render(request, 'reviews/contact.html')
 
