@@ -141,7 +141,7 @@ def now_playing_view(request):
         # 方法1: 管理画面で手動選択した映画（最優先）
         manually_selected = Movie.objects.filter(
             is_now_playing_jp=True
-        )
+        ).order_by('-popularity')
         
         # 方法2: jp_release_dateが過去2ヶ月以内の映画（自動）
         auto_selected = Movie.objects.filter(
@@ -149,13 +149,12 @@ def now_playing_view(request):
             jp_release_date__lte=today
         ).exclude(
             is_now_playing_jp=True  # 手動選択と重複しないように
-        )
+        ).order_by('-popularity')
         
-        # 結合して人気度でソート
+        # 結合
         from itertools import chain
         movies = list(chain(manually_selected, auto_selected))
-        movies.sort(key=lambda x: x.popularity, reverse=True)
-        movies = movies[:20]  # 最大20件
+        movies = movies[:40]  # 最大40件（手動選択を優先表示）
     
     context = {
         'movies': movies,
