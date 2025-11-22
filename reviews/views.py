@@ -44,26 +44,6 @@ def movie_list(request):
     }
     
     return render(request, 'reviews/movie_list.html', context)
-    
-    # 検索機能
-    if query:
-        movies = movies.filter(
-            Q(title__icontains=query) | Q(original_title__icontains=query)
-        )
-    
-    # ページネーション（20件ずつ）
-    paginator = Paginator(movies, 20)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
-    
-    context = {
-        'movies': page_obj,
-        'page_obj': page_obj,
-        'query': query,
-        'status': status,  # テンプレートでタブの状態を管理
-    }
-    
-    return render(request, 'reviews/movie_list.html', context)
 
 def movie_detail(request, pk):
     """映画詳細とレビュー投稿処理"""
@@ -143,38 +123,47 @@ def person_movie_list(request, pk):
 
 
 def now_playing_view(request):
-    """上映中の映画を表示（自動 + 手動）"""
+    """上映中の映画と公開予定の映画を表示（タブ切り替え対応）"""
     from datetime import date, timedelta
     
     today = date.today()
-    two_months_ago = today - timedelta(days=60)
-    one_month_later = today + timedelta(days=30)
+    status = request.GET.get('status', 'now_playing')  # デフォルトは「現在公開中」
     
-    # 方法1: 管理画面で手動選択した映画（最優先）
-    manually_selected = Movie.objects.filter(
-        is_now_playing_jp=True
-    )
-    
-    # 方法2: 公開日が前後の範囲内の映画（自動）
-    auto_selected = Movie.objects.filter(
-        release_date__gte=two_months_ago,
-        release_date__lte=one_month_later,
-    ).exclude(
-        is_now_playing_jp=True  # 手動選択と重複しないように
-    )
-    
-    # 結合
-    from itertools import chain
-    movies = list(chain(manually_selected, auto_selected))
-    
-    # 人気度でソート
-    movies.sort(key=lambda x: x.popularity, reverse=True)
+    if status == 'coming_soon':
+        # 公開予定: jp_release_dateが今日より未来の映画
+        movies = Movie.objects.filter(
+            jp_release_date__gt=today
+        ).order_by('jp_release_date')  # 公開日が近い順
+    else:
+        # 現在公開中
+        two_months_ago = today - timedelta(days=60)
+        
+        # 方法1: 管理画面で手動選択した映画（最優先）
+        manually_selected = Movie.objects.filter(
+            is_now_playing_jp=True
+        )
+        
+        # 方法2: jp_release_dateが過去2ヶ月以内の映画（自動）
+        auto_selected = Movie.objects.filter(
+            jp_release_date__gte=two_months_ago,
+            jp_release_date__lte=today
+        ).exclude(
+            is_now_playing_jp=True  # 手動選択と重複しないように
+        )
+        
+        # 結合して人気度でソート
+        from itertools import chain
+        movies = list(chain(manually_selected, auto_selected))
+        movies.sort(key=lambda x: x.popularity, reverse=True)
+        movies = movies[:20]  # 最大20件
     
     context = {
-        'movies': movies[:20],  # 最大20件
+        'movies': movies,
+        'status': status,
+        'last_updated': today,
     }
+    
     return render(request, 'reviews/now_playing.html', context)
-
 
 def create_movie_from_tmdb(request, tmdb_id):
     """TMDbの映画をMovieモデルに保存"""
