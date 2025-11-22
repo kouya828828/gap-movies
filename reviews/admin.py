@@ -3,9 +3,9 @@ from django.contrib import admin
 from .models import (
     Movie, Review, CriticReview, Person, Favorite, Column, WatchStatus, Like,
     UserProfile, Comment, Notification, Follow, Report, ReviewLike, 
-    MovieRecommendation, FanArt, FanArtLike 
+    MovieRecommendation, FanArt, FanArtLike, ContactMessage, Discussion
 )
-
+from django_summernote.admin import SummernoteModelAdmin
 
 
 # Movie Admin
@@ -81,11 +81,22 @@ class FavoriteAdmin(admin.ModelAdmin):
 
 # Column Admin
 @admin.register(Column)
-class ColumnAdmin(admin.ModelAdmin):
+class ColumnAdmin(SummernoteModelAdmin):
+    summernote_fields = ('content',) 
     list_display = ['title', 'author', 'created_at']
     list_filter = ['created_at']
     search_fields = ['title', 'author__username', 'content']
     readonly_fields = ['created_at', 'updated_at']
+    
+    fieldsets = (
+        ('基本情報', {
+            'fields': ('author', 'title', 'content')
+        }),
+        ('システム情報', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
 
 
 # WatchStatus Admin
@@ -202,6 +213,7 @@ class MovieRecommendationAdmin(admin.ModelAdmin):
     search_fields = ['user__username', 'movie__title']
     readonly_fields = ['created_at']
 
+
 # FanArt Admin
 @admin.register(FanArt)
 class FanArtAdmin(admin.ModelAdmin):
@@ -229,8 +241,8 @@ class FanArtLikeAdmin(admin.ModelAdmin):
     search_fields = ['user__username', 'fanart__title']
     readonly_fields = ['created_at']
 
-from .models import ContactMessage
 
+# ContactMessage Admin
 @admin.register(ContactMessage)
 class ContactMessageAdmin(admin.ModelAdmin):
     list_display = ['name', 'email', 'subject', 'is_read', 'created_at']
@@ -248,3 +260,23 @@ class ContactMessageAdmin(admin.ModelAdmin):
     def mark_as_unread(self, request, queryset):
         queryset.update(is_read=False)
     mark_as_unread.short_description = "選択した問い合わせを未読にする"
+
+
+# Discussion Admin (みんなの声)
+@admin.register(Discussion)
+class DiscussionAdmin(SummernoteModelAdmin):
+    summernote_fields = ('content',)  # Summernoteエディタを適用
+    list_display = ['title', 'user', 'movie', 'created_at']
+    list_filter = ['created_at']
+    search_fields = ['title', 'user__username', 'movie__title', 'content']
+    readonly_fields = ['created_at', 'updated_at']
+    
+    fieldsets = (
+        ('基本情報', {
+            'fields': ('user', 'movie', 'title', 'content')
+        }),
+        ('システム情報', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )

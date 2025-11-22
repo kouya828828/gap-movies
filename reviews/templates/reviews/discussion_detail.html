@@ -156,7 +156,7 @@
         </div>
 
         <div class="discussion-content">
-            {{ discussion.content|linebreaks }}
+            {{ discussion.content|safe }}
         </div>
 
         {% if user == discussion.user %}

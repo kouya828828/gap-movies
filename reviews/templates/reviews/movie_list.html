@@ -2,14 +2,72 @@
 
 {% block title %}映画一覧 - Gap Movies{% endblock %}
 
+{% block extra_css %}
+<style>
+    .tab-container {
+        background: white;
+        border-radius: 12px;
+        padding: 10px;
+        margin-bottom: 30px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .tab-buttons {
+        display: flex;
+        gap: 10px;
+    }
+    
+    .tab-btn {
+        flex: 1;
+        padding: 15px 30px;
+        border: none;
+        background: #f5f5f5;
+        color: #666;
+        font-weight: 600;
+        font-size: 1.1rem;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-decoration: none;
+        text-align: center;
+    }
+    
+    .tab-btn:hover {
+        background: #e0e0e0;
+        color: #333;
+    }
+    
+    .tab-btn.active {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="container my-5">
     <h1 class="mb-4">🎬 映画一覧</h1>
+    
+    <!-- タブ切り替え -->
+    <div class="tab-container">
+        <div class="tab-buttons">
+            <a href="{% url 'movie_list' %}?status=now_playing{% if query %}&q={{ query }}{% endif %}" 
+               class="tab-btn {% if status == 'now_playing' or not status %}active{% endif %}">
+                🎥 現在公開中
+            </a>
+            <a href="{% url 'movie_list' %}?status=coming_soon{% if query %}&q={{ query }}{% endif %}" 
+               class="tab-btn {% if status == 'coming_soon' %}active{% endif %}">
+                🔜 公開予定
+            </a>
+        </div>
+    </div>
     
     <!-- 検索バー -->
     <div class="card mb-4">
         <div class="card-body">
             <form method="get" action="{% url 'movie_list' %}">
+                <input type="hidden" name="status" value="{{ status }}">
                 <div class="input-group">
                     <input type="text" class="form-control" name="q" placeholder="映画タイトルで検索..." value="{{ query }}">
                     <button class="btn btn-primary" type="submit">
@@ -20,7 +78,13 @@
         </div>
     </div>
 
-    <p class="text-muted">全{{ page_obj.paginator.count }}件の映画</p>
+    <p class="text-muted">
+        {% if status == 'coming_soon' %}
+            公開予定: 全{{ page_obj.paginator.count }}件の映画
+        {% else %}
+            現在公開中: 全{{ page_obj.paginator.count }}件の映画
+        {% endif %}
+    </p>
 
     <!-- 映画グリッド -->
     <div class="row">
@@ -44,7 +108,15 @@
                             {{ movie.title }}
                         </a>
                     </h5>
-                    {% if movie.release_date %}
+                    {% if movie.jp_release_date %}
+                        <p class="text-muted mb-0">
+                            {% if status == 'coming_soon' %}
+                                公開予定: {{ movie.jp_release_date|date:"Y年n月j日" }}
+                            {% else %}
+                                公開日: {{ movie.jp_release_date|date:"Y年n月j日" }}
+                            {% endif %}
+                        </p>
+                    {% elif movie.release_date %}
                         <p class="text-muted mb-0">{{ movie.release_date|date:"Y年" }}</p>
                     {% endif %}
                 </div>
@@ -63,10 +135,10 @@
         <ul class="pagination justify-content-center">
             {% if page_obj.has_previous %}
             <li class="page-item">
-                <a class="page-link" href="?page=1{% if query %}&q={{ query }}{% endif %}">最初</a>
+                <a class="page-link" href="?page=1{% if status %}&status={{ status }}{% endif %}{% if query %}&q={{ query }}{% endif %}">最初</a>
             </li>
             <li class="page-item">
-                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}">前へ</a>
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if status %}&status={{ status }}{% endif %}{% if query %}&q={{ query }}{% endif %}">前へ</a>
             </li>
             {% endif %}
 
@@ -76,10 +148,10 @@
 
             {% if page_obj.has_next %}
             <li class="page-item">
-                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}">次へ</a>
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if status %}&status={{ status }}{% endif %}{% if query %}&q={{ query }}{% endif %}">次へ</a>
             </li>
             <li class="page-item">
-                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if query %}&q={{ query }}{% endif %}">最後</a>
+                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if status %}&status={{ status }}{% endif %}{% if query %}&q={{ query }}{% endif %}">最後</a>
             </li>
             {% endif %}
         </ul>
