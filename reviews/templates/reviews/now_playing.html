@@ -36,6 +36,47 @@
         color: #5a6c7d;
     }
 
+    /* タブ切り替え */
+    .tab-container {
+        background: white;
+        border-radius: 12px;
+        padding: 10px;
+        margin-bottom: 30px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .tab-buttons {
+        display: flex;
+        gap: 10px;
+    }
+    
+    .tab-btn {
+        flex: 1;
+        padding: 15px 30px;
+        border: none;
+        background: #f5f5f5;
+        color: #666;
+        font-weight: 600;
+        font-size: 1.1rem;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-decoration: none;
+        text-align: center;
+        display: block;
+    }
+    
+    .tab-btn:hover {
+        background: #e0e0e0;
+        color: #333;
+    }
+    
+    .tab-btn.active {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
     .filter-bar {
         background: white;
         padding: 20px 25px;
@@ -135,6 +176,19 @@
         top: 15px;
         left: 15px;
         background: #4a5568;
+        color: white;
+        padding: 6px 15px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        z-index: 2;
+    }
+
+    .comingsoon-badge {
+        position: absolute;
+        top: 15px;
+        left: 15px;
+        background: #667eea;
         color: white;
         padding: 6px 15px;
         border-radius: 20px;
@@ -355,8 +409,8 @@
 <!-- ページヘッダー -->
 <section class="nowplaying-header">
     <div class="container">
-        <h1>現在公開中</h1>
-        <p class="subtitle">劇場で観られる最新作をチェックしよう</p>
+        <h1>🎬 劇場公開情報</h1>
+        <p class="subtitle">劇場で観られる映画をチェックしよう</p>
         <div class="update-info">
             最終更新: {{ last_updated|date:"Y年m月d日" }}
         </div>
@@ -364,10 +418,28 @@
 </section>
 
 <div class="container">
+    <!-- タブ切り替え -->
+    <div class="tab-container">
+        <div class="tab-buttons">
+            <a href="{% url 'now_playing' %}?status=now_playing" 
+               class="tab-btn {% if status == 'now_playing' or not status %}active{% endif %}">
+                🎥 現在公開中
+            </a>
+            <a href="{% url 'now_playing' %}?status=coming_soon" 
+               class="tab-btn {% if status == 'coming_soon' %}active{% endif %}">
+                🔜 公開予定
+            </a>
+        </div>
+    </div>
+
     <!-- フィルターバー -->
     <div class="filter-bar">
         <div class="movie-count">
-            公開中の映画: <strong>{{ movies.count }}</strong>本
+            {% if status == 'coming_soon' %}
+                公開予定: <strong>{{ movies.count }}</strong>本
+            {% else %}
+                現在公開中: <strong>{{ movies.count }}</strong>本
+            {% endif %}
         </div>
         <div class="view-toggle">
             <button class="view-btn active" onclick="switchView('grid')">
@@ -387,7 +459,11 @@
             <div class="movie-poster-wrapper">
                 <img src="{% if movie.poster_path %}https://image.tmdb.org/t/p/w500{{ movie.poster_path }}{% else %}{% static 'images/no-poster.png' %}{% endif %}"
                      alt="{{ movie.title }}" class="movie-poster">
-                <div class="nowplaying-badge">NOW</div>
+                {% if status == 'coming_soon' %}
+                    <div class="comingsoon-badge">SOON</div>
+                {% else %}
+                    <div class="nowplaying-badge">NOW</div>
+                {% endif %}
                 {% if movie.vote_average %}
                 <div class="movie-rating">★{{ movie.vote_average|floatformat:1 }}</div>
                 {% endif %}
@@ -395,7 +471,17 @@
             <div class="movie-info">
                 <div class="movie-title">{{ movie.title }}</div>
                 <div class="movie-meta">
-                    <span class="release-date">{{ movie.release_date|date:"Y/m/d" }}</span>
+                    {% if movie.jp_release_date %}
+                        <span class="release-date">
+                            {% if status == 'coming_soon' %}
+                                公開予定: {{ movie.jp_release_date|date:"Y/m/d" }}
+                            {% else %}
+                                {{ movie.jp_release_date|date:"Y/m/d" }}
+                            {% endif %}
+                        </span>
+                    {% elif movie.release_date %}
+                        <span class="release-date">{{ movie.release_date|date:"Y/m/d" }}</span>
+                    {% endif %}
                 </div>
                 {% if movie.genres %}
                 <div class="movie-genres">
@@ -431,9 +517,21 @@
                     {{ movie.overview|truncatewords:30|default:"あらすじ情報がありません" }}
                 </div>
                 <div class="list-meta">
-                    <div class="list-meta-item">
-                        <span>{{ movie.release_date|date:"Y年m月d日" }}</span>
-                    </div>
+                    {% if movie.jp_release_date %}
+                        <div class="list-meta-item">
+                            <span>
+                                {% if status == 'coming_soon' %}
+                                    公開予定: {{ movie.jp_release_date|date:"Y年m月d日" }}
+                                {% else %}
+                                    {{ movie.jp_release_date|date:"Y年m月d日" }}
+                                {% endif %}
+                            </span>
+                        </div>
+                    {% elif movie.release_date %}
+                        <div class="list-meta-item">
+                            <span>{{ movie.release_date|date:"Y年m月d日" }}</span>
+                        </div>
+                    {% endif %}
                     {% if movie.genres %}
                     <div class="list-meta-item">
                         <span>{{ movie.genres|slice:":3"|join:", " }}</span>
@@ -463,8 +561,13 @@
     {% else %}
     <!-- 空の状態 -->
     <div class="empty-state">
-        <h3>現在公開中の映画情報がありません</h3>
-        <p>しばらくしてから再度確認してください</p>
+        {% if status == 'coming_soon' %}
+            <h3>公開予定の映画情報がありません</h3>
+            <p>しばらくしてから再度確認してください</p>
+        {% else %}
+            <h3>現在公開中の映画情報がありません</h3>
+            <p>しばらくしてから再度確認してください</p>
+        {% endif %}
         <a href="{% url 'movie_list' %}" class="btn-primary">すべての映画を見る</a>
     </div>
     {% endif %}

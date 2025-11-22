@@ -21,29 +21,29 @@ from .forms import (
 )
 
 def movie_list(request):
-    """映画一覧を表示 - ページネーション付き + 検索機能 + 公開状態フィルター"""
-    from datetime import date
-    
+    """映画一覧を表示 - ページネーション付き + 検索機能"""
     query = request.GET.get('q', '')
-    status = request.GET.get('status', 'now_playing')  # デフォルトは「現在公開中」
     
-    today = date.today()
+    movies = Movie.objects.all().order_by('-popularity')  # 人気度順
     
-    # ステータスによるフィルタリング
-    if status == 'coming_soon':
-        # 公開予定: 日本公開日が今日より未来
-        movies = Movie.objects.filter(
-            jp_release_date__gt=today
-        ).order_by('jp_release_date')  # 公開日が近い順
-    else:
-        # 現在公開中: is_now_playing_jpがTrueまたは日本公開日が過去2ヶ月以内
-        from datetime import timedelta
-        two_months_ago = today - timedelta(days=60)
-        
-        movies = Movie.objects.filter(
-            Q(is_now_playing_jp=True) |  # 手動選択
-            Q(jp_release_date__gte=two_months_ago, jp_release_date__lte=today)  # 自動選択
-        ).order_by('-popularity')  # 人気度順
+    # 検索機能
+    if query:
+        movies = movies.filter(
+            Q(title__icontains=query) | Q(original_title__icontains=query)
+        )
+    
+    # ページネーション（20件ずつ）
+    paginator = Paginator(movies, 20)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    context = {
+        'movies': page_obj,
+        'page_obj': page_obj,
+        'query': query,
+    }
+    
+    return render(request, 'reviews/movie_list.html', context)
     
     # 検索機能
     if query:
