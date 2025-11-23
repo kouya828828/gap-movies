@@ -129,7 +129,7 @@ if not DEBUG:
 SUMMERNOTE_CONFIG = {
     'summernote': {
         'width': '100%',
-        'height': '600',  # エディタの高さを600pxに
+        'height': '800',  # エディタの高さを600pxに
         'toolbar': [
             ['style', ['style']],
             ['font', ['bold', 'underline', 'clear']],
