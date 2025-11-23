@@ -1,9 +1,9 @@
 {% extends "base.html" %}
-{% load django_summernote %}
 
-{% block title %}コラムを書く - コーヒーブレイク・メーター{% endblock %}
+{% block title %}コラムを書く - Gap Movies{% endblock %}
 
 {% block extra_css %}
+{{ form.media.css }}
 <style>
 .page-header {
     background: linear-gradient(135deg, #8B4513 0%, #5D3A1A 100%);
@@ -25,7 +25,7 @@
     border-radius: 12px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     max-width: 900px;
-    margin: 0 auto;
+    margin: 0 auto 60px;
 }
 
 .form-group {
@@ -53,31 +53,6 @@
     outline: none;
     border-color: #8B4513;
     box-shadow: 0 0 0 3px rgba(139, 69, 19, 0.1);
-}
-
-.checkbox-group {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 10px;
-    margin-top: 10px;
-}
-
-.checkbox-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.checkbox-item input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
-    cursor: pointer;
-}
-
-.checkbox-item label {
-    cursor: pointer;
-    font-size: 0.9rem;
-    margin: 0;
 }
 
 .btn-submit {
@@ -125,63 +100,67 @@
 {% endblock %}
 
 {% block content %}
-<!-- ページヘッダー -->
-<div class="page-header">
-    <h1>コラムを書く</h1>
-    <p>映画についてのあなたの考えを共有しましょう</p>
-</div>
+<div class="container">
+    <!-- ページヘッダー -->
+    <div class="page-header">
+        <h1>コラムを書く</h1>
+        <p>映画についてのあなたの考えを共有しましょう</p>
+    </div>
 
-<!-- フォーム -->
-<div class="form-container">
-    <form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-        
-        <!-- タイトル -->
-        <div class="form-group">
-            <label class="form-label">{{ form.title.label }}</label>
-            {{ form.title }}
-            {% if form.title.errors %}
-                <div style="color: #dc3545; font-size: 0.9rem; margin-top: 5px;">
-                    {{ form.title.errors }}
-                </div>
-            {% endif %}
-        </div>
-        
-        <!-- 本文（Summernoteエディタ） -->
-        <div class="form-group">
-            <label class="form-label">{{ form.content.label }}</label>
-            {{ form.content }}
-            <div class="help-text">
-                画像の挿入、テキスト装飾など自由に編集できます
+    <!-- フォーム -->
+    <div class="form-container">
+        <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+            
+            <!-- タイトル -->
+            <div class="form-group">
+                <label class="form-label">{{ form.title.label }}</label>
+                {{ form.title }}
+                {% if form.title.errors %}
+                    <div style="color: #dc3545; font-size: 0.9rem; margin-top: 5px;">
+                        {{ form.title.errors }}
+                    </div>
+                {% endif %}
             </div>
-            {% if form.content.errors %}
-                <div style="color: #dc3545; font-size: 0.9rem; margin-top: 5px;">
-                    {{ form.content.errors }}
+            
+            <!-- 本文（Summernoteエディタ） -->
+            <div class="form-group">
+                <label class="form-label">{{ form.content.label }}</label>
+                {{ form.content }}
+                <div class="help-text">
+                    画像の挿入、テキスト装飾など自由に編集できます
                 </div>
-            {% endif %}
-        </div>
-
-        <!-- サムネイル -->
-        <div class="form-group">
-            <label class="form-label">{{ form.thumbnail.label }}</label>
-            {{ form.thumbnail }}
-            <div class="help-text">
-                JPG、PNG、GIF形式の画像をアップロードできます
+                {% if form.content.errors %}
+                    <div style="color: #dc3545; font-size: 0.9rem; margin-top: 5px;">
+                        {{ form.content.errors }}
+                    </div>
+                {% endif %}
             </div>
-            {% if form.thumbnail.errors %}
-                <div style="color: #dc3545; font-size: 0.9rem; margin-top: 5px;">
-                    {{ form.thumbnail.errors }}
-                </div>
-            {% endif %}
-        </div>
-        
-        <!-- ボタン -->
-        <div style="text-align: center; margin-top: 40px;">
-            <button type="submit" class="btn-submit">投稿する</button>
-            <a href="{% url 'column_list' %}" class="btn-cancel">キャンセル</a>
-        </div>
-    </form>
-</div>
 
-{{ form.media }}
+            <!-- サムネイル -->
+            <div class="form-group">
+                <label class="form-label">{{ form.thumbnail.label }}</label>
+                {{ form.thumbnail }}
+                <div class="help-text">
+                    JPG、PNG、GIF形式の画像をアップロードできます
+                </div>
+                {% if form.thumbnail.errors %}
+                    <div style="color: #dc3545; font-size: 0.9rem; margin-top: 5px;">
+                        {{ form.thumbnail.errors }}
+                    </div>
+                {% endif %}
+            </div>
+            
+            <!-- ボタン -->
+            <div style="text-align: center; margin-top: 40px;">
+                <button type="submit" class="btn-submit">投稿する</button>
+                <a href="{% url 'column_list' %}" class="btn-cancel">キャンセル</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{{ form.media.js }}
 {% endblock %}

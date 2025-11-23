@@ -1,8 +1,9 @@
-# reviews/forms.py - 100点満点スライダー対応
+# reviews/forms.py
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from .models import Review, Column, Comment, UserProfile, Discussion, DiscussionComment, Movie, FanArt
+from django_summernote.widgets import SummernoteWidget
 
 
 class SignUpForm(UserCreationForm):
@@ -92,36 +93,25 @@ class ReviewForm(forms.ModelForm):
 
 class ColumnForm(forms.ModelForm):
     """コラムフォーム"""
-    title = forms.CharField(
-        label='タイトル',
-        max_length=200,
-        widget=forms.TextInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'コラムのタイトル',
-            'style': 'font-size: 1.2rem; padding: 15px;' 
-        })
-    )
-
-    content = forms.CharField(
-        label='本文',
-        widget=forms.Textarea(attrs={
-            'class': 'form-control summernote',
-            'rows': 20, 
-            'style': 'min-height: 500px;'
-        })
-    )
-
-    thumbnail = forms.ImageField(
-        label='サムネイル画像',
-        required=False,
-        widget=forms.FileInput(attrs={
-            'class': 'form-control'
-        })
-    )
-
     class Meta:
         model = Column
         fields = ['title', 'content', 'thumbnail']
+        widgets = {
+            'title': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'コラムのタイトル',
+                'style': 'font-size: 1.2rem; padding: 15px;'
+            }),
+            'content': SummernoteWidget(attrs={
+                'summernote': {
+                    'width': '100%',
+                    'height': '600',
+                }
+            }),
+            'thumbnail': forms.FileInput(attrs={
+                'class': 'form-control'
+            }),
+        }
 
 
 class CommentForm(forms.ModelForm):
@@ -211,39 +201,29 @@ class UserEditForm(forms.ModelForm):
         model = User
         fields = ['username', 'email']
 
+
 class DiscussionForm(forms.ModelForm):
     """みんなの声投稿フォーム"""
-    title = forms.CharField(
-        label='タイトル',
-        max_length=200,
-        widget=forms.TextInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'タイトルを入力...',
-            'style': 'font-size: 1.2rem; padding: 15px;'  # ← 追加
-        })
-    )
-
-    content = forms.CharField(
-        label='本文',
-        widget=forms.Textarea(attrs={
-            'class': 'form-control summernote',
-            'rows': 20,  # ← 10から20に変更
-            'style': 'min-height: 500px;'  # ← 追加
-        })
-    )
-
-    movie = forms.ModelChoiceField(
-        label='関連映画（オプション）',
-        queryset=Movie.objects.all().order_by('-popularity')[:50],
-        required=False,
-        widget=forms.Select(attrs={
-            'class': 'form-control'
-        })
-    )
-
     class Meta:
         model = Discussion
         fields = ['title', 'content', 'movie']
+        widgets = {
+            'title': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'タイトルを入力...',
+                'style': 'font-size: 1.2rem; padding: 15px;'
+            }),
+            'content': SummernoteWidget(attrs={
+                'summernote': {
+                    'width': '100%',
+                    'height': '600',
+                }
+            }),
+            'movie': forms.Select(attrs={
+                'class': 'form-control'
+            }),
+        }
+
 
 class DiscussionCommentForm(forms.ModelForm):
     """みんなの声コメントフォーム"""
@@ -259,6 +239,7 @@ class DiscussionCommentForm(forms.ModelForm):
     class Meta:
         model = DiscussionComment
         fields = ['content']
+
 
 class FanArtForm(forms.ModelForm):
     """ファンアート投稿フォーム"""
