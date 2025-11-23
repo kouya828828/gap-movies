@@ -2,6 +2,103 @@
 
 {% block title %}映画一覧 - Gap Movies{% endblock %}
 
+{% block extra_css %}
+<style>
+    /* PC表示: 4列 */
+    .movie-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 20px;
+        margin-bottom: 40px;
+    }
+
+    /* タブレット: 3列 */
+    @media (max-width: 992px) {
+        .movie-grid {
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+    }
+
+    /* スマホ: 3列（小さめ） */
+    @media (max-width: 768px) {
+        .movie-grid {
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .movie-card .card-body {
+            padding: 10px;
+        }
+
+        .movie-card .card-title {
+            font-size: 0.85rem;
+            line-height: 1.3;
+        }
+
+        .movie-card .text-muted {
+            font-size: 0.75rem;
+        }
+    }
+
+    .movie-card {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        transition: transform 0.3s, box-shadow 0.3s;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .movie-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+    }
+
+    .movie-poster {
+        width: 100%;
+        aspect-ratio: 2/3;
+        object-fit: cover;
+    }
+
+    .no-poster {
+        width: 100%;
+        aspect-ratio: 2/3;
+        background: #6c757d;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.9rem;
+    }
+
+    .movie-card .card-body {
+        padding: 15px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .movie-card .card-title {
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: #2c3e50;
+        text-decoration: none;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .movie-card .card-title:hover {
+        color: #667eea;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="container my-5">
     <h1 class="mb-4">🎬 映画一覧</h1>
@@ -23,31 +120,28 @@
     <p class="text-muted">全{{ page_obj.paginator.count }}件の映画</p>
 
     <!-- 映画グリッド -->
-    <div class="row">
+    <div class="movie-grid">
         {% for movie in page_obj %}
-        <div class="col-md-3 mb-4">
-            <div class="card h-100">
-                <a href="{% url 'movie_detail' movie.id %}">
-                    {% if movie.poster_path %}
-                        <img src="https://image.tmdb.org/t/p/w500{{ movie.poster_path }}" 
-                             class="card-img-top" alt="{{ movie.title }}">
-                    {% else %}
-                        <div class="bg-secondary text-white d-flex align-items-center justify-content-center" 
-                             style="height: 450px;">
-                            画像なし
-                        </div>
-                    {% endif %}
-                </a>
-                <div class="card-body">
-                    <h5 class="card-title">
-                        <a href="{% url 'movie_detail' movie.id %}" class="text-decoration-none">
-                            {{ movie.title }}
-                        </a>
-                    </h5>
-                    {% if movie.release_date %}
-                        <p class="text-muted mb-0">{{ movie.release_date|date:"Y年" }}</p>
-                    {% endif %}
-                </div>
+        <div class="movie-card">
+            <a href="{% url 'movie_detail' movie.id %}">
+                {% if movie.poster_path %}
+                    <img src="https://image.tmdb.org/t/p/w500{{ movie.poster_path }}" 
+                         class="movie-poster" alt="{{ movie.title }}">
+                {% else %}
+                    <div class="no-poster">
+                        画像なし
+                    </div>
+                {% endif %}
+            </a>
+            <div class="card-body">
+                <h5 class="card-title">
+                    <a href="{% url 'movie_detail' movie.id %}" class="text-decoration-none">
+                        {{ movie.title }}
+                    </a>
+                </h5>
+                {% if movie.release_date %}
+                    <p class="text-muted mb-0">{{ movie.release_date|date:"Y年" }}</p>
+                {% endif %}
             </div>
         </div>
         {% empty %}

@@ -97,7 +97,8 @@ class ColumnForm(forms.ModelForm):
         max_length=200,
         widget=forms.TextInput(attrs={
             'class': 'form-control',
-            'placeholder': 'コラムのタイトル'
+            'placeholder': 'コラムのタイトル',
+            'style': 'font-size: 1.2rem; padding: 15px;' 
         })
     )
 
@@ -105,7 +106,8 @@ class ColumnForm(forms.ModelForm):
         label='本文',
         widget=forms.Textarea(attrs={
             'class': 'form-control summernote',
-            'rows': 10
+            'rows': 20, 
+            'style': 'min-height: 500px;'
         })
     )
 
@@ -216,15 +218,17 @@ class DiscussionForm(forms.ModelForm):
         max_length=200,
         widget=forms.TextInput(attrs={
             'class': 'form-control',
-            'placeholder': 'タイトルを入力...'
+            'placeholder': 'タイトルを入力...',
+            'style': 'font-size: 1.2rem; padding: 15px;'  # ← 追加
         })
     )
 
     content = forms.CharField(
         label='本文',
         widget=forms.Textarea(attrs={
-            'class': 'form-control summernote',  # ← summernoteクラス追加
-            'rows': 10
+            'class': 'form-control summernote',
+            'rows': 20,  # ← 10から20に変更
+            'style': 'min-height: 500px;'  # ← 追加
         })
     )
 

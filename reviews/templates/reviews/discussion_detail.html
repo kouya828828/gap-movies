@@ -33,6 +33,7 @@
         padding-bottom: 20px;
         border-bottom: 2px solid #f0f0f0;
         margin-bottom: 30px;
+        flex-wrap: wrap;
     }
 
     .discussion-content {
@@ -40,6 +41,22 @@
         line-height: 1.8;
         font-size: 1.1rem;
         margin-bottom: 30px;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+    }
+
+    /* 画像のレスポンシブ対応 */
+    .discussion-content img {
+        max-width: 100%;
+        height: auto;
+        display: block;
+        margin: 20px auto;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .discussion-content p {
+        margin-bottom: 1em;
     }
 
     .discussion-actions {
@@ -47,6 +64,7 @@
         gap: 15px;
         padding-top: 20px;
         border-top: 2px solid #f0f0f0;
+        flex-wrap: wrap;
     }
 
     .btn-edit, .btn-delete {
@@ -93,6 +111,7 @@
         align-items: center;
         gap: 15px;
         margin-bottom: 15px;
+        flex-wrap: wrap;
     }
 
     .comment-author {
@@ -130,6 +149,30 @@
     .btn-submit:hover {
         transform: translateY(-2px);
         box-shadow: 0 4px 10px rgba(102, 126, 234, 0.4);
+    }
+
+    /* スマホ対応 */
+    @media (max-width: 768px) {
+        .discussion-container {
+            padding: 20px;
+        }
+
+        .discussion-title {
+            font-size: 1.5rem;
+        }
+
+        .discussion-content {
+            font-size: 1rem;
+        }
+
+        .comments-section {
+            padding: 20px;
+        }
+
+        .discussion-meta {
+            gap: 10px;
+            font-size: 0.9rem;
+        }
     }
 </style>
 {% endblock %}

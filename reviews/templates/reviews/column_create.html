@@ -1,8 +1,9 @@
 {% extends "base.html" %}
+{% load django_summernote %}
 
 {% block title %}コラムを書く - コーヒーブレイク・メーター{% endblock %}
 
-{% block content %}
+{% block extra_css %}
 <style>
 .page-header {
     background: linear-gradient(135deg, #8B4513 0%, #5D3A1A 100%);
@@ -52,12 +53,6 @@
     outline: none;
     border-color: #8B4513;
     box-shadow: 0 0 0 3px rgba(139, 69, 19, 0.1);
-}
-
-textarea.form-control {
-    min-height: 400px;
-    font-family: inherit;
-    line-height: 1.6;
 }
 
 .checkbox-group {
@@ -127,7 +122,9 @@ textarea.form-control {
     margin-top: 5px;
 }
 </style>
+{% endblock %}
 
+{% block content %}
 <!-- ページヘッダー -->
 <div class="page-header">
     <h1>コラムを書く</h1>
@@ -150,12 +147,12 @@ textarea.form-control {
             {% endif %}
         </div>
         
-        <!-- 本文 -->
+        <!-- 本文（Summernoteエディタ） -->
         <div class="form-group">
             <label class="form-label">{{ form.content.label }}</label>
             {{ form.content }}
             <div class="help-text">
-                改行は自動で段落に変換されます
+                画像の挿入、テキスト装飾など自由に編集できます
             </div>
             {% if form.content.errors %}
                 <div style="color: #dc3545; font-size: 0.9rem; margin-top: 5px;">
@@ -163,6 +160,8 @@ textarea.form-control {
                 </div>
             {% endif %}
         </div>
+
+        <!-- サムネイル -->
         <div class="form-group">
             <label class="form-label">{{ form.thumbnail.label }}</label>
             {{ form.thumbnail }}
@@ -176,27 +175,6 @@ textarea.form-control {
             {% endif %}
         </div>
         
-        <!-- 関連映画 -->
-        <div class="form-group">
-            <label class="form-label">{{ form.related_movies.label }}</label>
-            <div class="help-text" style="margin-bottom: 10px;">
-                このコラムで言及する映画を選択してください（複数選択可）
-            </div>
-            <div class="checkbox-group">
-                {% for checkbox in form.related_movies %}
-                <div class="checkbox-item">
-                    {{ checkbox.tag }}
-                    <label for="{{ checkbox.id_for_label }}">{{ checkbox.choice_label }}</label>
-                </div>
-                {% endfor %}
-            </div>
-            {% if form.related_movies.errors %}
-                <div style="color: #dc3545; font-size: 0.9rem; margin-top: 5px;">
-                    {{ form.related_movies.errors }}
-                </div>
-            {% endif %}
-        </div>
-        
         <!-- ボタン -->
         <div style="text-align: center; margin-top: 40px;">
             <button type="submit" class="btn-submit">投稿する</button>
@@ -205,4 +183,5 @@ textarea.form-control {
     </form>
 </div>
 
+{{ form.media }}
 {% endblock %}

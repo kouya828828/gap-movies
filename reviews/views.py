@@ -32,8 +32,8 @@ def movie_list(request):
             Q(title__icontains=query) | Q(original_title__icontains=query)
         )
     
-    # ページネーション（20件ずつ）
-    paginator = Paginator(movies, 20)
+    # ページネーション（30件ずつ）
+    paginator = Paginator(movies, 30)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     
