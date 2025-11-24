@@ -178,6 +178,14 @@ def home(request):
         popularity__gt=50
     ).order_by('-popularity')[:5]
     
+    # 埋め込みURLを視聴用URLに変換
+    for movie in featured_movies:
+        if movie.trailer_url and '/embed/' in movie.trailer_url:
+            # https://www.youtube.com/embed/XXX → https://www.youtube.com/watch?v=XXX
+            movie.watch_url = movie.trailer_url.replace('/embed/', '/watch?v=')
+        else:
+            movie.watch_url = movie.trailer_url
+    
     # 人気映画ランキング（人気度順 - レビューがなくても表示）
     popular_movies = Movie.objects.order_by('-popularity')[:6]
     
