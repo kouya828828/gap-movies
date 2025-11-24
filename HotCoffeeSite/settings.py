@@ -129,7 +129,7 @@ if not DEBUG:
 SUMMERNOTE_CONFIG = {
     'summernote': {
         'width': '100%',
-        'height': '800',  # エディタの高さを600pxに
+        'height': '800',  # エディタの高さ
         'toolbar': [
             ['style', ['style']],
             ['font', ['bold', 'underline', 'clear']],
@@ -140,12 +140,8 @@ SUMMERNOTE_CONFIG = {
             ['insert', ['link', 'picture', 'video']],
             ['view', ['fullscreen', 'codeview', 'help']],
         ],
-        'codemirror': {
-            'mode': 'htmlmixed',
-            'lineNumbers': 'true',
-            'theme': 'monokai',
-        },
     },
     'disable_attachment': False,  # 画像アップロードを有効化
     'attachment_require_authentication': True,
+    'attachment_upload_to': 'summernote/',  # 画像保存先
 }
