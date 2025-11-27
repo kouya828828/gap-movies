@@ -165,5 +165,5 @@ cloudinary.config(
     api_secret=CLOUDINARY_STORAGE['API_SECRET'],
 )
 
-# メディアファイルの設定 - Cloudinaryストレージを使用
+# メディアファイルストレージ - Cloudinaryを使用
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
