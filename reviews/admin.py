@@ -1,12 +1,18 @@
-# reviews/admin.py
 from django.contrib import admin
-from .models import (
-    Movie, Review, CriticReview, Person, Favorite, Column, WatchStatus, Like,
-    UserProfile, Comment, Notification, Follow, Report, ReviewLike, 
-    MovieRecommendation, FanArt, FanArtLike, ContactMessage, Discussion
-)
 from django_summernote.admin import SummernoteModelAdmin
+from .models import Review, Column, Comment, UserProfile, Discussion, DiscussionComment, Movie, FanArt
+from cloudinary_storage.storage import MediaCloudinaryStorage  # ← 追加
 
+# Summernote用のカスタムストレージ設定
+class CustomSummernoteModelAdmin(SummernoteModelAdmin):
+    summernote_fields = '__all__'
+    
+    def get_summernote_config(self):
+        config = super().get_summernote_config()
+        config['storage'] = MediaCloudinaryStorage()  # ← Cloudinaryストレージを強制
+        return config
+
+# 既存のモデル登録をそのまま維持
 
 # Movie Admin
 @admin.register(Movie)

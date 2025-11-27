@@ -1,9 +1,15 @@
-# reviews/forms.py
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from .models import Review, Column, Comment, UserProfile, Discussion, DiscussionComment, Movie, FanArt
 from django_summernote.widgets import SummernoteWidget
+from cloudinary_storage.storage import MediaCloudinaryStorage  # ← 追加
+
+# カスタムSummernoteウィジェット（Cloudinary対応）
+class CloudinarySummernoteWidget(SummernoteWidget):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.storage = MediaCloudinaryStorage()
 
 
 class SignUpForm(UserCreationForm):
@@ -102,17 +108,11 @@ class ColumnForm(forms.ModelForm):
                 'placeholder': 'コラムのタイトル',
                 'style': 'font-size: 1.2rem; padding: 15px;'
             }),
-            'content': SummernoteWidget(attrs={
-                'summernote': {
-                    'width': '100%',
-                    'height': '600',
-                }
-            }),
+            'content': CloudinarySummernoteWidget(),  # ← 変更
             'thumbnail': forms.FileInput(attrs={
                 'class': 'form-control'
             }),
         }
-
 
 class CommentForm(forms.ModelForm):
     """コメントフォーム"""
@@ -213,12 +213,7 @@ class DiscussionForm(forms.ModelForm):
                 'placeholder': 'タイトルを入力...',
                 'style': 'font-size: 1.2rem; padding: 15px;'
             }),
-            'content': SummernoteWidget(attrs={
-                'summernote': {
-                    'width': '100%',
-                    'height': '600',
-                }
-            }),
+            'content': CloudinarySummernoteWidget(),  # ← 変更
             'movie': forms.Select(attrs={
                 'class': 'form-control'
             }),
