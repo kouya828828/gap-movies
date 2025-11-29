@@ -10,6 +10,9 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from datetime import date
 from django_summernote.widgets import SummernoteWidget
+# Summernote用カスタムアップロードビュー
+from django_summernote.views import SummernoteUploadAttachment
+from cloudinary_storage.storage import MediaCloudinaryStorage
 
 from .models import (
     Movie, Person, Review, CriticReview, Column, Discussion, DiscussionComment,
@@ -1123,3 +1126,6 @@ def toggle_fanart_like(request, fanart_id):
         })
     
     return redirect('fanart_list')
+
+class CloudinarySummernoteUploadAttachment(SummernoteUploadAttachment):
+    storage = MediaCloudinaryStorage()
