@@ -14,18 +14,15 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+
 from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from reviews.views import CloudinarySummernoteUploadAttachment
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('reviews.urls')),
-    path('summernote/upload_attachment/', 
-         CloudinarySummernoteUploadAttachment.as_view(), 
-         name='django_summernote-upload_attachment'),
     path('summernote/', include('django_summernote.urls')),
 ]
 
