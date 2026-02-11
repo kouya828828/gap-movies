@@ -23,11 +23,9 @@ from reviews.views import CloudinarySummernoteUploadAttachment
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('reviews.urls')),
-    # カスタムアップロードビューを先に定義
     path('summernote/upload_attachment/', 
          CloudinarySummernoteUploadAttachment.as_view(), 
          name='django_summernote-upload_attachment'),
-    # django_summernoteのURLを後から含める
     path('summernote/', include('django_summernote.urls')),
 ]
 
