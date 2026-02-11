@@ -14,6 +14,7 @@ from django_summernote.widgets import SummernoteWidget
 from django_summernote.views import SummernoteUploadAttachment
 from cloudinary_storage.storage import MediaCloudinaryStorage
 
+
 from .models import (
     Movie, Person, Review, CriticReview, Column, Discussion, DiscussionComment,
     Follow, Report, ReviewLike, MovieRecommendation, Favorite, WatchStatus,
